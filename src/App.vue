@@ -28,7 +28,6 @@ export default {
 }
 
 button {
-  margin-top: 20px; /* Ajoute un espace entre le titre et le bouton */
   color: #ffffff; /* Définit la couleur du texte en vert */
   background-color: #027A56; /* Définit la couleur du texte en vert */
   width: 100%;

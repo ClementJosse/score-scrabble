@@ -1,4 +1,4 @@
-# Score Scrabble
+# score-scrabble
 
 ## Project setup
 ```
