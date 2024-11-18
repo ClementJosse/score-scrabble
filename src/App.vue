@@ -119,8 +119,8 @@ export default {
   font-weight: 600;
   border-radius: clamp(0px, 10px, 2vw);
   border: 0px;
-  margin-top: clamp(0px, 200px, 40vw);
-  margin-bottom: clamp(0px, 200px, 40vw);
+  margin-top: clamp(0px, 150px, 30vw);
+  margin-bottom: clamp(0px, 150px, 30vw);
 }
 
 .new-game:active {
