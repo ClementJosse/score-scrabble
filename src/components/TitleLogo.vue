@@ -29,7 +29,7 @@ export default {
 .TitleLogo .title-text {
   flex: 3; /* Prend 3/4 de l'espace */
   color: #027A56; /* Définit la couleur du texte en vert */
-  font-size: clamp(0px, 40px, 8vw);; /* Ajuste la taille du texte */
+  font-size: clamp(0px, 40px, 8vw); /* Ajuste la taille du texte */
   font-weight: 600;
   text-align: left; /* Aligne le texte à gauche */
 }
