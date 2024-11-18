@@ -128,6 +128,7 @@ h4{
     cursor: grab;
     font-size: clamp(0px, 30px, 6vw);
     color: #004B35;
+    user-select: none; /* Empêche la sélection du texte */
 }
 
 .input-box{
