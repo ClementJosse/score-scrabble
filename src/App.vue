@@ -1,29 +1,40 @@
 <template>
-  <div class="main">
-    <TitleLogo />
-    <button @click="createJsonFile" class="new-game">Nouvelle Partie</button>
-    <div class="json-list mt-5">
-      <h2>Fichiers JSON créés :</h2>
-      <ul>
-        <li v-for="file in jsonFiles" :key="file" class="flex items-center justify-between">
-          {{ file }}
-          <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-            Supprimer
-          </button>
-        </li>
-      </ul>
+  <div class="main-container">
+    <div class="main-menu">
+      <TitleLogo />
+      <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
+      <div class="json-list mt-5">
+        <h2>Fichiers JSON créés :</h2>
+        <ul>
+          <li v-for="file in jsonFiles" :key="file" class="flex items-center justify-between">
+            {{ file }}
+            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+              Supprimer
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="player-menu">
+      <div class="back-container">
+        <button @click="goToMainMenu" class="back-menu">&lt; Menu</button>
+      </div>
+      <ListReorder />
     </div>
   </div>
+  
 </template>
 
 <script>
 import TitleLogo from './components/TitleLogo.vue'; // Assurez-vous que le chemin est correct
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import ListReorder from './components/ListReorder.vue';
 
 export default {
   name: 'App',
   components: {
-    TitleLogo
+    TitleLogo,
+    ListReorder
   },
   data() {
     return {
@@ -89,7 +100,13 @@ export default {
       } catch (e) {
         console.error('Erreur lors de la suppression du fichier JSON :', e);
       }
-    }
+    },
+    goToPlayerMenu() {
+    document.querySelector('.main-container').style.transform = `translateX(-100vw)`; // Défile vers la droite
+  },
+  goToMainMenu() {
+    document.querySelector('.main-container').style.transform = `translateX(0)`; // Revient au menu principal
+  }
   },
   mounted() {
     this.loadJsonFiles(); // Charge la liste des fichiers au montage du composant
@@ -98,7 +115,18 @@ export default {
 </script>
 
 <style>
-.main {
+body, html {
+  overflow-x: hidden; /* Empêche le scroll horizontal global */
+}
+.main-container{
+  display: flex;
+  flex-direction: row;
+  overflow-x: hidden;
+  width: 200%; /* Ajuste selon tes besoins */
+  transition: transform 0.5s ease-in-out;
+}
+
+.main-menu{
   display: flex;
   flex-direction: column; /* Dispose les éléments verticalement */
   align-items: center; /* Centre les éléments horizontalement */
@@ -106,10 +134,12 @@ export default {
   margin: auto; /* Centre horizontalement la div */
   margin-top: clamp(0px, 100px, 20vw);
 }
+
 .json-list {
   margin-top: 20px;
   text-align: left;
 }
+
 .new-game {
   color: #ffffff; /* Définit la couleur du texte en vert */
   background-color: #027A56; /* Définit la couleur du texte en vert */
@@ -125,6 +155,32 @@ export default {
 
 .new-game:active {
   background-color: #006345; /* Couleur lorsqu'on appuie */
+}
+
+.player-menu{
+  width: clamp(0px, 400px, 80vw);
+  height: 100vh;
+  margin: auto;
+}
+
+.back-container{
+  display: flex;
+}
+
+.back-menu{
+  margin-top: clamp(0px, 50px, 10vw);
+  width: clamp(0px, 100px, 20vw);
+  height: clamp(0px, 50px, 10vw);
+  border-radius: clamp(0px, 10px, 2vw);
+  border: 0px;
+  font-size: clamp(0px, 20px, 4vw); /* Ajuste la taille du texte */
+  font-weight: 600;
+  color: #006345;
+  background-color: #ffffff;
+}
+
+.back-menu:active {
+  background-color: #DADADA; /* Couleur lorsqu'on appuie */
 }
 
 #app {
