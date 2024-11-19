@@ -1,37 +1,40 @@
 <template>
     
     <h4>Nom des joueurs :</h4>
-    <div class="player-list-container">
-        <div class="number-list">
-            <div v-for="(num, index) in numberList" :key="index" class="player-number" :style="{ backgroundColor: playerColors[index] }">
-                {{ num }}
+    <div class="player-list-button-container">
+        <div class="player-list-container">
+            <div class="number-list">
+                <div v-for="(num, index) in numberList" :key="index" class="player-number" :style="{ backgroundColor: playerColors[index] }">
+                    {{ num }}
+                </div>
             </div>
+            <draggable v-model="nameList" tag="div" class="textbox-list" :group="{ name: 'players' }" handle=".dragg-element">
+                <template #item="{ index }">
+                    <li class="textbox">
+                        <span class="dragg-element">⠿</span>
+                        <div class="input-box">
+                            <input
+                            v-model="nameList[index]"
+                            class="editable-input"
+                            :placeholder="`Joueur ${index + 1}`"
+                        />
+                            <span class="delete-element" @click="handleDelete(index)">✕</span>
+                        </div>
+                    </li>
+                </template>
+            </draggable>
         </div>
-        <draggable v-model="nameList" tag="div" class="textbox-list" :group="{ name: 'players' }" handle=".dragg-element">
-            <template #item="{ index }">
-                <li class="textbox">
-                    <span class="dragg-element">⠿</span>
-                    <div class="input-box">
-                        <input
-                        v-model="nameList[index]"
-                        class="editable-input"
-                        :placeholder="`Joueur ${index + 1}`"
-                    />
-                        <span class="delete-element" @click="handleDelete(index)">✕</span>
-                    </div>
-                </li>
-            </template>
-        </draggable>
+        <div class="button-container">
+            <button @click="addLine" class="add-button" :disabled="nameList.length >= 4">+</button>
+        </div>
     </div>
-    <div class="button-container">
-        <button @click="addLine" class="add-button" :disabled="nameList.length >= 4">+</button>
-    </div>
-    <button @click="createJsonFile" class="new-game">Commencer la partie</button>
+    <p>La partie se déroulera selon l’ordre des joueurs indiqué.</p>
+    <button @click="createJsonFile" class="new-game" :disabled="isStartButtonDisabled">Commencer la partie</button>
 </template>
 
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import draggable from 'vuedraggable';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
@@ -68,6 +71,11 @@ const handleDelete = (index) => {
     }
 };
 
+// Computed property pour vérifier si tous les noms sont remplis
+const isStartButtonDisabled = computed(() => {
+    return nameList.value.some(name => name.trim() === '');
+});
+
 const getFormattedDate = () => {
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -100,7 +108,7 @@ const createJsonFile = async () => {
             encoding: Encoding.UTF8
         });
         console.log('Fichier JSON créé avec succès :', fileName);
-        
+
         // Émettre un événement après la création du fichier JSON
         const event = new CustomEvent('jsonUpdated');
         window.dispatchEvent(event);
@@ -109,7 +117,6 @@ const createJsonFile = async () => {
         console.error('Erreur lors de la création du fichier JSON :', e);
     }
 };
-
 </script>
 
 <style scoped>
@@ -120,6 +127,10 @@ h4{
     font-weight: 500;
     margin-bottom: clamp(0px,25px, 5vw);
     margin-top: clamp(0px, 125px, 25vw);
+}
+
+.player-list-button-container {
+    height: clamp(0px, 300px, 60vw);
 }
 
 .player-list-container {
@@ -233,6 +244,18 @@ h4{
 .add-button:disabled {
     background-color: #ffffff;
     cursor: default;
+}
+
+p{
+    color: #5F5F5F;
+    font-size: clamp(0px, 15px, 3vw);
+    margin-top: clamp(0px, 150px, 30vw);
+}
+
+.new-game:disabled {
+    background-color: #DADADA; /* Couleur grise */
+    cursor: not-allowed; /* Change le curseur en "non permis" */
+    color: #ffffff; /* Facultatif : change la couleur du texte */
 }
 
 
