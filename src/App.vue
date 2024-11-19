@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-    <div class="main-menu">
+    <div v-if="currentView === 'main-menu'" class="main-menu">
       <TitleLogo />
       <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
       <div class="json-list mt-5">
@@ -15,20 +15,20 @@
         </ul>
       </div>
     </div>
-    <div class="player-menu">
+
+    <div v-else-if="currentView === 'player-menu'" class="player-menu">
       <div class="back-container">
         <button @click="goToMainMenu" class="back-menu">Retour</button>
       </div>
-      <ListReorder />
+      <ListReorder @jsonCreated="loadJsonFiles" />
     </div>
   </div>
-  
 </template>
 
 <script>
-import TitleLogo from './components/TitleLogo.vue'; // Assurez-vous que le chemin est correct
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import TitleLogo from './components/TitleLogo.vue';
 import ListReorder from './components/ListReorder.vue';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export default {
   name: 'App',
@@ -38,41 +38,11 @@ export default {
   },
   data() {
     return {
+      currentView: 'main-menu', // Vue actuelle (main-menu, player-menu)
       jsonFiles: [] // Liste des fichiers JSON
     };
   },
   methods: {
-    getFormattedDate() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const hh = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      const ms = String(now.getMilliseconds()).padStart(3, '0');
-      return `${yyyy}-${mm}-${dd}-${hh}-${min}-${ss}-${ms}`;
-    },
-    async createJsonFile() {
-      const data = {
-        date: new Date().toISOString(),
-        game: "Nouvelle partie",
-        score: 0
-      };
-      const fileName = this.getFormattedDate() + '.json';
-      try {
-        await Filesystem.writeFile({
-          path: fileName,
-          data: JSON.stringify(data),
-          directory: Directory.Documents,
-          encoding: Encoding.UTF8
-        });
-        console.log('Fichier JSON créé avec succès :', fileName);
-        this.loadJsonFiles(); // Recharge la liste des fichiers après la création
-      } catch (e) {
-        console.error('Erreur lors de la création du fichier JSON :', e);
-      }
-    },
     async loadJsonFiles() {
       try {
         const result = await Filesystem.readdir({
@@ -82,9 +52,9 @@ export default {
 
         // Extraire le nom des fichiers et trier par ordre décroissant
         this.jsonFiles = result.files
-          .map(file => typeof file === 'string' ? file : file.name) // S'assurer d'extraire le nom
-          .filter(fileName => fileName.endsWith('.json')) // Filtrer uniquement les fichiers JSON
-          .sort((a, b) => b.localeCompare(a)); // Trier les fichiers du plus récent au plus ancien
+          .map(file => typeof file === 'string' ? file : file.name)
+          .filter(fileName => fileName.endsWith('.json'))
+          .sort((a, b) => b.localeCompare(a));
       } catch (e) {
         console.error('Erreur lors du chargement des fichiers JSON :', e);
       }
@@ -102,24 +72,23 @@ export default {
       }
     },
     goToPlayerMenu() {
-    document.querySelector('.main-container').style.transform = `translateX(-100vw)`; // Défile vers la droite
-  },
-  goToMainMenu() {
-    document.querySelector('.main-container').style.transform = `translateX(0)`; // Revient au menu principal
-  }
+      this.currentView = 'player-menu';
+    },
+    goToMainMenu() {
+      this.currentView = 'main-menu';
+    }
   },
   mounted() {
     this.loadJsonFiles(); // Charge la liste des fichiers au montage du composant
 
     // Écoute l'événement personnalisé 'jsonUpdated' pour actualiser la liste
     window.addEventListener('jsonUpdated', this.loadJsonFiles);
-},
-beforeUnmount() {
+  },
+  beforeUnmount() {
     // Nettoyer l'écouteur d'événements lorsque le composant est démonté
     window.removeEventListener('jsonUpdated', this.loadJsonFiles);
-}
-
-}
+  }
+};
 </script>
 
 <style>
@@ -130,7 +99,6 @@ body, html {
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
-  width: 200%; /* Ajuste selon tes besoins */
   transition: transform 0.5s ease-in-out;
 }
 

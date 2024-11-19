@@ -1,82 +1,76 @@
 <template>
-    
     <h4>Nom des joueurs :</h4>
     <div class="player-list-button-container">
-        <div class="player-list-container">
-            <div class="number-list">
-                <div v-for="(num, index) in numberList" :key="index" class="player-number" :style="{ backgroundColor: playerColors[index] }">
-                    {{ num }}
-                </div>
-            </div>
-            <draggable v-model="nameList" tag="div" class="textbox-list" :group="{ name: 'players' }" handle=".dragg-element">
-                <template #item="{ index }">
-                    <li class="textbox">
-                        <span class="dragg-element">⠿</span>
-                        <div class="input-box">
-                            <input
-                            v-model="nameList[index]"
-                            class="editable-input"
-                            :placeholder="`Joueur ${index + 1}`"
-                        />
-                            <span class="delete-element" @click="handleDelete(index)">✕</span>
-                        </div>
-                    </li>
-                </template>
-            </draggable>
+      <div class="player-list-container">
+        <div class="number-list">
+          <div v-for="(num, index) in numberList" :key="index" class="player-number" :style="{ backgroundColor: playerColors[index] }">
+            {{ num }}
+          </div>
         </div>
-        <div class="button-container">
-            <button @click="addLine" class="add-button" :disabled="nameList.length >= 4">+</button>
-        </div>
+        <draggable v-model="nameList" tag="div" class="textbox-list" :group="{ name: 'players' }" handle=".dragg-element">
+          <template #item="{ index }">
+            <li class="textbox">
+              <span class="dragg-element">⠿</span>
+              <div class="input-box">
+                <input
+                  v-model="nameList[index]"
+                  class="editable-input"
+                  :placeholder="`Joueur ${index + 1}`"
+                />
+                <span class="delete-element" @click="handleDelete(index)">✕</span>
+              </div>
+            </li>
+          </template>
+        </draggable>
+      </div>
+      <div class="button-container">
+        <button @click="addLine" class="add-button" :disabled="nameList.length >= 4">+</button>
+      </div>
     </div>
     <p>La partie se déroulera selon l’ordre des joueurs indiqué.</p>
     <button @click="createJsonFile" class="new-game" :disabled="isStartButtonDisabled">Commencer la partie</button>
-</template>
-
-
-<script setup>
-import { ref, computed } from 'vue';
-import draggable from 'vuedraggable';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-
-const nameList = ref([
-    "",
-    ""
-]);
-
-// Liste des numéros et couleurs pour chaque joueur
-const numberList = ref([1, 2]);
-const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
-
-const addLine = () => {
+  </template>
+  
+  <script setup>
+  import { ref, computed } from 'vue';
+  import draggable from 'vuedraggable';
+  import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+  import { defineEmits } from 'vue';
+  
+  const emit = defineEmits(['jsonCreated']);
+  const nameList = ref(["", ""]);
+  const numberList = ref([1, 2]);
+  const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
+  
+  const addLine = () => {
     if (nameList.value.length < 4) {
-        nameList.value.push('');
-        numberList.value.push(numberList.value.length + 1);
+      nameList.value.push('');
+      numberList.value.push(numberList.value.length + 1);
     }
-};
-
-const handleDelete = (index) => {
+  };
+  
+  const handleDelete = (index) => {
     if (nameList.value.length > 2) {
-        if (nameList.value[index].trim() === '') {
-            nameList.value.splice(index, 1);
-            numberList.value.pop();
-        } else {
-            nameList.value[index] = '';
-        }
+      if (nameList.value[index].trim() === '') {
+        nameList.value.splice(index, 1);
+        numberList.value.pop();
+      } else {
+        nameList.value[index] = '';
+      }
     } else {
-        if (nameList.value[index].trim() !== '') {
-            nameList.value[index] = '';
-        } else {
-            console.warn("Impossible de supprimer la textbox : il doit rester au moins deux joueurs.");
-        }
+      if (nameList.value[index].trim() !== '') {
+        nameList.value[index] = '';
+      } else {
+        console.warn("Impossible de supprimer la textbox : il doit rester au moins deux joueurs.");
+      }
     }
-};
-
-// Computed property pour vérifier si tous les noms sont remplis
-const isStartButtonDisabled = computed(() => {
+  };
+  
+  const isStartButtonDisabled = computed(() => {
     return nameList.value.some(name => name.trim() === '');
-});
-
-const getFormattedDate = () => {
+  });
+  
+  const getFormattedDate = () => {
     const now = new Date();
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -86,39 +80,44 @@ const getFormattedDate = () => {
     const ss = String(now.getSeconds()).padStart(2, '0');
     const ms = String(now.getMilliseconds()).padStart(3, '0');
     return `${yyyy}-${mm}-${dd}-${hh}-${min}-${ss}-${ms}`;
-};
-
-const createJsonFile = async () => {
-    const playersData = nameList.value.map((name, index) => ({
-        number: numberList.value[index],
-        name: name.trim() || `Joueur ${index + 1}`
-    }));
-
+  };
+  
+  const createJsonFile = async () => {
+    const trimmedNameList = nameList.value.map(name => name.trim());
     const data = {
-        date: new Date().toISOString(),
-        players: playersData
+      status: "ongoing",
+      players: trimmedNameList,
+      "current-turn": trimmedNameList[0] || "Joueur 1",
+      data: trimmedNameList.reduce((acc, name) => {
+        acc[name] = { played: [], score: [] };
+        return acc;
+      }, {})
     };
-
+  
     const fileName = getFormattedDate() + '.json';
     try {
-        await Filesystem.writeFile({
-            path: fileName,
-            data: JSON.stringify(data),
-            directory: Directory.Documents,
-            encoding: Encoding.UTF8
-        });
-        console.log('Fichier JSON créé avec succès :', fileName);
-
-        // Émettre un événement après la création du fichier JSON
-        const event = new CustomEvent('jsonUpdated');
-        window.dispatchEvent(event);
-
+      await Filesystem.writeFile({
+        path: fileName,
+        data: JSON.stringify(data, null, 2),
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8
+      });
+      console.log('Fichier JSON créé avec succès :', fileName);
+  
+      // Lire et afficher le contenu du fichier JSON dans la console du navigateur
+      const result = await Filesystem.readFile({
+        path: fileName,
+        directory: Directory.Documents
+      });
+      console.log('Contenu du fichier JSON :', JSON.parse(result.data));
+  
+      emit('jsonCreated'); // Émettre l'événement pour informer App.vue que le JSON a été créé
     } catch (e) {
-        console.error('Erreur lors de la création du fichier JSON :', e);
+      console.error('Erreur lors de la création ou de la lecture du fichier JSON :', e);
     }
-};
-</script>
-
+  };
+  </script>  
+  
 <style scoped>
 
 h4{
