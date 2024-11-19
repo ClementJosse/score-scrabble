@@ -111,12 +111,12 @@
       });
       console.log('Contenu du fichier JSON :', JSON.parse(result.data));
   
-      emit('jsonCreated'); // Émettre l'événement pour informer App.vue que le JSON a été créé
+      emit('jsonCreated', fileName.replace('.json', '')); // Émettre l'événement avec le nom du fichier sans extension
     } catch (e) {
       console.error('Erreur lors de la création ou de la lecture du fichier JSON :', e);
     }
   };
-  </script>  
+  </script>
   
 <style scoped>
 

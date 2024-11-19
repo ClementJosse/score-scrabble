@@ -8,6 +8,9 @@
         <ul>
           <li v-for="file in jsonFiles" :key="file" class="flex items-center justify-between">
             {{ file }}
+            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
+              Ouvrir
+            </button>
             <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
               Supprimer
             </button>
@@ -20,7 +23,11 @@
       <div class="back-container">
         <button @click="goToMainMenu" class="back-menu">Retour</button>
       </div>
-      <ListReorder @jsonCreated="loadJsonFiles" />
+      <ListReorder @jsonCreated="openGameView" />
+    </div>
+
+    <div v-else-if="currentView === 'game-view'">
+      <GameView :fileName="selectedFileName" @goBack="goToMainMenu" />
     </div>
   </div>
 </template>
@@ -28,18 +35,21 @@
 <script>
 import TitleLogo from './components/TitleLogo.vue';
 import ListReorder from './components/ListReorder.vue';
+import GameView from './components/GameView.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export default {
   name: 'App',
   components: {
     TitleLogo,
-    ListReorder
+    ListReorder,
+    GameView
   },
   data() {
     return {
-      currentView: 'main-menu', // Vue actuelle (main-menu, player-menu)
-      jsonFiles: [] // Liste des fichiers JSON
+      currentView: 'main-menu', // Vue actuelle (main-menu, player-menu, game-view)
+      jsonFiles: [], // Liste des fichiers JSON
+      selectedFileName: '' // Nom du fichier JSON sélectionné
     };
   },
   methods: {
@@ -75,7 +85,16 @@ export default {
       this.currentView = 'player-menu';
     },
     goToMainMenu() {
+      this.loadJsonFiles();
       this.currentView = 'main-menu';
+    },
+    viewGame(fileName) {
+      this.selectedFileName = fileName.replace('.json', '');
+      this.currentView = 'game-view';
+    },
+    openGameView(fileName) {
+      this.selectedFileName = fileName;
+      this.currentView = 'game-view';
     }
   },
   mounted() {
@@ -90,6 +109,7 @@ export default {
   }
 };
 </script>
+
 
 <style>
 body, html {
