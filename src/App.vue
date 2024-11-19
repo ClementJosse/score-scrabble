@@ -110,7 +110,15 @@ export default {
   },
   mounted() {
     this.loadJsonFiles(); // Charge la liste des fichiers au montage du composant
-  }
+
+    // Écoute l'événement personnalisé 'jsonUpdated' pour actualiser la liste
+    window.addEventListener('jsonUpdated', this.loadJsonFiles);
+},
+beforeUnmount() {
+    // Nettoyer l'écouteur d'événements lorsque le composant est démonté
+    window.removeEventListener('jsonUpdated', this.loadJsonFiles);
+}
+
 }
 </script>
 

@@ -26,12 +26,14 @@
     <div class="button-container">
         <button @click="addLine" class="add-button" :disabled="nameList.length >= 4">+</button>
     </div>
+    <button @click="createJsonFile" class="new-game">Commencer la partie</button>
 </template>
 
 
 <script setup>
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 const nameList = ref([
     "",
@@ -44,7 +46,6 @@ const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
 
 const addLine = () => {
     if (nameList.value.length < 4) {
-        // Ajouter une nouvelle entrée vide
         nameList.value.push('');
         numberList.value.push(numberList.value.length + 1);
     }
@@ -53,23 +54,62 @@ const addLine = () => {
 const handleDelete = (index) => {
     if (nameList.value.length > 2) {
         if (nameList.value[index].trim() === '') {
-            // Supprimer la textbox et le numéro associé si l'input est vide
             nameList.value.splice(index, 1);
             numberList.value.pop();
         } else {
-            // Vider le contenu de l'input si ce n'est pas vide
             nameList.value[index] = '';
         }
     } else {
-        // Si seulement deux éléments restent
         if (nameList.value[index].trim() !== '') {
-            // Vider le contenu de l'input si ce n'est pas vide, mais ne pas supprimer la textbox
             nameList.value[index] = '';
         } else {
             console.warn("Impossible de supprimer la textbox : il doit rester au moins deux joueurs.");
         }
     }
 };
+
+const getFormattedDate = () => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const ms = String(now.getMilliseconds()).padStart(3, '0');
+    return `${yyyy}-${mm}-${dd}-${hh}-${min}-${ss}-${ms}`;
+};
+
+const createJsonFile = async () => {
+    const playersData = nameList.value.map((name, index) => ({
+        number: numberList.value[index],
+        name: name.trim() || `Joueur ${index + 1}`
+    }));
+
+    const data = {
+        date: new Date().toISOString(),
+        players: playersData
+    };
+
+    const fileName = getFormattedDate() + '.json';
+    try {
+        await Filesystem.writeFile({
+            path: fileName,
+            data: JSON.stringify(data),
+            directory: Directory.Documents,
+            encoding: Encoding.UTF8
+        });
+        console.log('Fichier JSON créé avec succès :', fileName);
+        
+        // Émettre un événement après la création du fichier JSON
+        const event = new CustomEvent('jsonUpdated');
+        window.dispatchEvent(event);
+
+    } catch (e) {
+        console.error('Erreur lors de la création du fichier JSON :', e);
+    }
+};
+
 </script>
 
 <style scoped>
