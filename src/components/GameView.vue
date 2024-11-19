@@ -1,33 +1,34 @@
 <template>
-    <div>
+    <div class="back-container">
       <button @click="$emit('goBack')" class="back-menu">Retour</button>
-      <div v-if="gameData">
-        <h2>Au tour de:</h2>
-        <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'] }}</h1>
+    </div>
+    <div v-if="gameData" class="gameData">
+      <h2>Au tour de:</h2>
+      <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'].toUpperCase() }}</h1>
   
-        <!-- Input pour ajouter un coup joué -->
-        <div class="input-move">
-          <input v-model="newMove" type="number" placeholder="Ajouter un coup" />
-          <button @click="addMove">Ajouter</button>
-        </div>
-  
-        <!-- Tableau des scores -->
-        <h2>Scores par tour</h2>
-        <table class="score-table">
-          <thead>
-            <tr>
-              <th>Tour</th>
-              <th v-for="(turn, index) in maxTurns" :key="'header-' + index">T{{ index + 1 }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="player in gameData.players" :key="player">
-              <td :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-              <td v-for="(score, index) in getPlayedForPlayer(player)" :key="'score-' + index">{{ score }}</td>
-            </tr>
-          </tbody>
-        </table>
+      
+      <div class="input-move">
+        <h4>Score:</h4>
+        <input v-model="newMove" type="number" placeholder="Ajouter un coup" />
+        <button @click="addMove">Ajouter</button>
       </div>
+  
+      <!-- Tableau des scores -->
+      <h4>Scores par tour</h4>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>Tour</th>
+            <th v-for="(turn, index) in maxTurns" :key="'header-' + index">T{{ index + 1 }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="player in gameData.players" :key="player">
+            <td :style="{ color: getPlayerColor(player) }">{{ player }}</td>
+            <td v-for="(score, index) in getPlayedForPlayer(player)" :key="'score-' + index">{{ score }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </template>
   
@@ -119,9 +120,25 @@ onMounted(async () => {
 </script>
 
   
-  <style scoped>
-  .back-menu {
-    margin-bottom: 20px;
+<style scoped>
+
+  .gameData{
+    width: 100%;
   }
-  </style>
+
+  h2{
+    color: #004B35;
+    font-size: clamp(0px, 25px, 5vw);
+    font-weight: 600;
+    margin-bottom: 0px;
+  }
+
+  h1{
+    font-size: clamp(0px, 45px, 9vw);
+    font-weight: 600;
+    margin-top: 0px;
+  }
+
+
+</style>
   

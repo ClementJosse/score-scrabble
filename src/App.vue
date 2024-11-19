@@ -26,7 +26,7 @@
       <ListReorder @jsonCreated="openGameView" />
     </div>
 
-    <div v-else-if="currentView === 'game-view'">
+    <div v-else-if="currentView === 'game-view'" class="game-view">
       <GameView :fileName="selectedFileName" @goBack="goToMainMenu" />
     </div>
   </div>
@@ -129,6 +129,13 @@ body, html {
   width: clamp(0px, 400px, 80vw);
   margin: auto; /* Centre horizontalement la div */
   margin-top: clamp(0px, 100px, 20vw);
+}
+
+.game-view {
+  display: flex;
+  flex-direction: column; /* Dispose les éléments verticalement */
+  width: clamp(0px, 400px, 80vw);
+  margin: auto; /* Centre horizontalement la div */
 }
 
 .json-list {
