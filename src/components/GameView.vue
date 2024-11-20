@@ -5,12 +5,20 @@
     <div v-if="gameData" class="gameData">
       <h2>Au tour de:</h2>
       <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'].toUpperCase() }}</h1>
-  
-      
       <div class="input-move">
         <h4>Score:</h4>
-        <input v-model="newMove" type="number" placeholder="Ajouter un coup" />
-        <button @click="addMove">Ajouter</button>
+        <div class="input-box">
+          <input class="input-text"
+            v-model="newMove" 
+            type="number" 
+            placeholder="... " 
+            @keydown.enter="addMove"
+            :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }"
+          />
+          <button v-if="isValidMove" @click="addMove" class="insert-button">
+            <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
+          </button>
+        </div>
       </div>
   
       <!-- Tableau des scores -->
@@ -33,7 +41,7 @@
   </template>
   
   
-  <script setup>
+<script setup>
 import { ref, onMounted, computed } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { defineProps } from 'vue';
@@ -47,6 +55,11 @@ const newMove = ref('');
 const maxTurns = ref(0);
 
 const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
+
+const isValidMove = computed(() => {
+  return newMove.value !== '' && !isNaN(newMove.value);
+});
+
 
 const currentPlayerColor = computed(() => {
   if (!gameData.value) return '';
@@ -122,8 +135,23 @@ onMounted(async () => {
   
 <style scoped>
 
+  /* Désactiver les flèches sur les navigateurs Webkit (Chrome, Edge, Safari) */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Désactiver les flèches sur Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
   .gameData{
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
   }
 
   h2{
@@ -136,9 +164,65 @@ onMounted(async () => {
   h1{
     font-size: clamp(0px, 45px, 9vw);
     font-weight: 600;
-    margin-top: 0px;
+    margin: 0;
   }
 
+  h4{
+    font-size: clamp(0px, 15px, 3vw);
+    font-weight: 400;
+    color: #5F5F5F;
+    margin-bottom: 0;
+  }
+
+  .input-move {
+    display: flex;
+    justify-content: center; /* Centre les éléments dans la div */
+    align-items: flex-start; /* Aligne les éléments à gauche */
+    flex-direction: column;
+    margin: 0 auto; /* Centre la div horizontalement */
+    text-align: left; /* Aligne le texte à gauche */
+  }
+
+  .input-move input::placeholder {
+    color: #ADADAD; /* Couleur du placeholder */
+  }
+
+  .input-box{
+    display: flex;
+    background-color: #ffffff;
+    border-radius: clamp(0px, 10px, 2vw);
+    border: 0px solid #ccc;
+    box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
+    font-size: clamp(0px, 25px, 5vw);
+    padding-left: clamp(0px, 15px, 3vw);
+    width: clamp(0px, 125px, 25vw);
+    height: clamp(0px, 50px, 10vw);
+  }
+
+  .input-text{
+    border: 0;
+    border-color: #ffffff;
+    width: 80%;
+    font-size: clamp(0px, 30px, 7vw);
+    font-weight: 600;
+  }
+
+  .input-text:focus {
+    outline: none; /* Supprime le contour */
+    border: none; /* Assure qu'aucune bordure ne s'affiche */
+  }
+
+  .insert-button{
+    background-color: #ffffff;
+    margin-right: clamp(0px, 5px, 1vw);
+    margin-bottom: clamp(0px, 5px, 1vw);
+    margin-top: clamp(0px, 5px, 1vw);
+  }
+
+  .svg-icon{
+    height: 100%;
+    width: 100%;
+  }
 
 </style>
   
