@@ -27,13 +27,25 @@
         <thead>
           <tr>
             <th>Tour</th>
-            <th v-for="(turn, index) in maxTurns" :key="'header-' + index">T{{ index + 1 }}</th>
+            <th
+              v-for="index in 8"
+              :key="'header-' + index"
+              :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
+            >
+              T{{ index }}
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="player in gameData.players" :key="player">
             <td :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-            <td v-for="(score, index) in getPlayedForPlayer(player)" :key="'score-' + index">{{ score }}</td>
+            <td
+              v-for="index in 8"
+              :key="'score-' + player + '-' + index"
+              :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
+            >
+            {{ getPlayedForPlayer(player)[index - 1] || '-' }}
+            </td>
           </tr>
         </tbody>
       </table>
