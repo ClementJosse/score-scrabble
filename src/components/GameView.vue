@@ -9,31 +9,23 @@
       <div class="input-move">
         <h4>Score:</h4>
         <div class="input-box">
-          <input class="input-text"
-            v-model="newMove" 
-            type="number" 
-            placeholder="... " 
-            @keydown.enter="addMove"
-            :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }"
-          />
+          <input class="input-text" v-model="newMove" type="number" placeholder="... " @keydown.enter="addMove"
+            :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
           <button v-if="isValidMove" @click="addMove" class="insert-button">
             <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
           </button>
         </div>
       </div>
-  
+
       <!-- Tableau des scores -->
       <h4>Scores par tour</h4>
-      <div class="score-container">
+      <div ref="scoreContainer" class="score-container">
         <table class="score-table">
           <thead>
             <tr>
               <th class="sticky-column">Tour</th>
-              <th
-                v-for="index in maxTurns"
-                :key="'header-' + index"
-                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
-              >
+              <th v-for="index in maxTurns" :key="'header-' + index"
+                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }">
                 <span v-if="isColumnFilled(index)">T{{ index }}</span>
               </th>
             </tr>
@@ -41,14 +33,13 @@
           <tbody>
             <tr v-for="player in gameData.players" :key="player">
               <td class="sticky-column" :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-              <td
-                v-for="index in maxTurns"
-                :key="'score-' + player + '-' + index"
-                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
-              >
-                <span v-if="getPlayedForPlayer(player)[index - 1] !== undefined">
+              <td v-for="index in maxTurns" :key="'score-' + player + '-' + index"
+                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8', width: '20px' }">
+                <span
+                  v-if="getPlayedForPlayer(player)[index - 1] !== undefined && getPlayedForPlayer(player)[index - 1] !== '-'">
                   {{ getPlayedForPlayer(player)[index - 1] }}
                 </span>
+                <span v-else>-</span>
               </td>
             </tr>
           </tbody>
@@ -61,7 +52,7 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { defineProps } from 'vue';
 
@@ -71,13 +62,21 @@ const props = defineProps({
 
 const gameData = ref(null);
 const newMove = ref('');
-const maxTurns = ref(0);
+const maxTurns = ref(6);
+const scoreContainer = ref(null);
 
 const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
 
 const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
 });
+
+// Ajoutez cette fonction pour faire défiler vers la droite
+const scrollToRight = () => {
+  if (scoreContainer.value) {
+    scoreContainer.value.scrollLeft = scoreContainer.value.scrollWidth;
+  }
+};
 
 const currentPlayerColor = computed(() => {
   if (!gameData.value) return '';
@@ -92,8 +91,8 @@ const getPlayerColor = (player) => {
 };
 
 const getPlayedForPlayer = (player) => {
-  return gameData.value.data[player].played.length > 0 
-    ? gameData.value.data[player].played 
+  return gameData.value.data[player].played.length > 0
+    ? gameData.value.data[player].played
     : [];
 };
 
@@ -137,10 +136,15 @@ const addMove = async () => {
     });
     newMove.value = '';
     console.log('Mise à jour du fichier JSON réussie');
+
+    // Utilisez nextTick pour vous assurer que l'interface est mise à jour avant de faire défiler
+    await nextTick();
+    scrollToRight();
   } catch (e) {
     console.error('Erreur lors de la mise à jour du fichier JSON :', e);
   }
 };
+
 
 onMounted(async () => {
   try {
@@ -153,6 +157,11 @@ onMounted(async () => {
     maxTurns.value = Math.max(
       ...gameData.value.players.map(player => gameData.value.data[player].played.length)
     );
+
+    // Faites défiler vers la droite lors du chargement des données initiales
+    nextTick(() => {
+      scrollToRight();
+    });
   } catch (e) {
     console.error('Erreur lors du chargement du fichier JSON :', e);
   }
@@ -236,9 +245,9 @@ h4 {
   border: 1px solid #ddd;
   border-color: #ffffff;
   width: 80%;
-  padding: 8px;
   font-weight: 600;
 }
+
 .input-text:focus {
   outline: none;
   /* Supprime le contour */
@@ -259,28 +268,35 @@ h4 {
 }
 
 .score-container {
-  overflow-x: auto; /* Ajoute un défilement horizontal */
-  white-space: nowrap; /* Empêche les colonnes de se replier */
+  overflow-x: auto;
+  /* Ajoute un défilement horizontal */
+  white-space: nowrap;
+  /* Empêche les colonnes de se replier */
 }
 
 .score-table {
   border-collapse: collapse;
-  width: max-content; /* Ajuste la largeur selon le contenu */
+  width: max-content;
+  /* Ajuste la largeur selon le contenu */
 }
 
-.score-table th, .score-table td {
+.score-table th,
+.score-table td {
   padding: 8px 12px;
   text-align: center;
   border: 1px solid #ddd;
-  white-space: nowrap; /* Empêche le texte de se couper */
+  white-space: nowrap;
+  /* Empêche le texte de se couper */
 }
 
 .sticky-column {
   position: sticky;
   left: 0;
-  background-color: #fff; /* Fond blanc pour rester visible */
+  background-color: #fff;
+  /* Fond blanc pour rester visible */
   z-index: 1;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optionnel : effet d'ombre */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  /* Optionnel : effet d'ombre */
 }
 
 .score-table {
