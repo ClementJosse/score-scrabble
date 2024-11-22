@@ -25,7 +25,7 @@
           <table class="player-table">
             <thead>
               <tr>
-                <th></th>
+                <th class="tour">Tour</th>
               </tr>
             </thead>
             <tbody>
@@ -376,9 +376,21 @@ h4 {
   width: 100%;
 }
 
-th,
-td {
+.tour{
+  display: flex;
+  color: #5F5F5F;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(0px, 17.5px, 3.5vw);
+}
+
+th{
   height: clamp(0px, 40px, 8vw);
+}
+
+td {
+  height: clamp(0px, 45px, 9vw);
+  padding-bottom: 10px;
 }
 
 th {
