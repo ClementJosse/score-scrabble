@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div class="back-container">
       <button @click="$emit('goBack')" class="back-menu">Retour</button>
     </div>
@@ -23,36 +24,42 @@
   
       <!-- Tableau des scores -->
       <h4>Scores par tour</h4>
-      <table class="score-table">
-        <thead>
-          <tr>
-            <th>Tour</th>
-            <th
-              v-for="index in 8"
-              :key="'header-' + index"
-              :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
-            >
-              T{{ index }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="player in gameData.players" :key="player">
-            <td :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-            <td
-              v-for="index in 8"
-              :key="'score-' + player + '-' + index"
-              :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
-            >
-            {{ getPlayedForPlayer(player)[index - 1] || '-' }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="score-container">
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th class="sticky-column">Tour</th>
+              <th
+                v-for="index in maxTurns"
+                :key="'header-' + index"
+                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
+              >
+                <span v-if="isColumnFilled(index)">T{{ index }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="player in gameData.players" :key="player">
+              <td class="sticky-column" :style="{ color: getPlayerColor(player) }">{{ player }}</td>
+              <td
+                v-for="index in maxTurns"
+                :key="'score-' + player + '-' + index"
+                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }"
+              >
+                <span v-if="getPlayedForPlayer(player)[index - 1] !== undefined">
+                  {{ getPlayedForPlayer(player)[index - 1] }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </template>
-  
-  
+  </div>
+</template>
+
+
+
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -72,7 +79,6 @@ const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
 });
 
-
 const currentPlayerColor = computed(() => {
   if (!gameData.value) return '';
   const currentPlayer = gameData.value['current-turn'];
@@ -88,7 +94,16 @@ const getPlayerColor = (player) => {
 const getPlayedForPlayer = (player) => {
   return gameData.value.data[player].played.length > 0 
     ? gameData.value.data[player].played 
-    : Array(maxTurns.value).fill('-');
+    : [];
+};
+
+const isColumnFilled = (columnIndex) => {
+  if (!gameData.value) return false;
+
+  // Vérifie si au moins un joueur a une donnée pour cette colonne
+  return gameData.value.players.some(player => {
+    return gameData.value.data[player].played[columnIndex - 1] !== undefined;
+  });
 };
 
 const addMove = async () => {
@@ -110,7 +125,7 @@ const addMove = async () => {
   gameData.value['current-turn'] = gameData.value.players[nextPlayerIndex];
 
   maxTurns.value = Math.max(
-    ...gameData.value.players.map(player => gameData.value.data[player].score.length)
+    ...gameData.value.players.map(player => gameData.value.data[player].played.length)
   );
 
   try {
@@ -136,7 +151,7 @@ onMounted(async () => {
     gameData.value = JSON.parse(result.data);
 
     maxTurns.value = Math.max(
-      ...gameData.value.players.map(player => gameData.value.data[player].score.length)
+      ...gameData.value.players.map(player => gameData.value.data[player].played.length)
     );
   } catch (e) {
     console.error('Erreur lors du chargement du fichier JSON :', e);
@@ -144,97 +159,150 @@ onMounted(async () => {
 });
 </script>
 
-  
+
+
 <style scoped>
+/* Désactiver les flèches sur les navigateurs Webkit (Chrome, Edge, Safari) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
-  /* Désactiver les flèches sur les navigateurs Webkit (Chrome, Edge, Safari) */
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+/* Désactiver les flèches sur Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 
-  /* Désactiver les flèches sur Firefox */
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
+.gameData {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
 
-  .gameData{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-items: center;
-  }
+h2 {
+  color: #004B35;
+  font-size: clamp(0px, 25px, 5vw);
+  font-weight: 600;
+  margin-bottom: 0px;
+}
 
-  h2{
-    color: #004B35;
-    font-size: clamp(0px, 25px, 5vw);
-    font-weight: 600;
-    margin-bottom: 0px;
-  }
+h1 {
+  font-size: clamp(0px, 45px, 9vw);
+  font-weight: 600;
+  margin: 0;
+}
 
-  h1{
-    font-size: clamp(0px, 45px, 9vw);
-    font-weight: 600;
-    margin: 0;
-  }
+h4 {
+  font-size: clamp(0px, 15px, 3vw);
+  font-weight: 400;
+  color: #5F5F5F;
+  margin-bottom: 0;
+}
 
-  h4{
-    font-size: clamp(0px, 15px, 3vw);
-    font-weight: 400;
-    color: #5F5F5F;
-    margin-bottom: 0;
-  }
+.input-move {
+  display: flex;
+  justify-content: center;
+  /* Centre les éléments dans la div */
+  align-items: flex-start;
+  /* Aligne les éléments à gauche */
+  flex-direction: column;
+  margin: 0 auto;
+  /* Centre la div horizontalement */
+  text-align: left;
+  /* Aligne le texte à gauche */
+}
 
-  .input-move {
-    display: flex;
-    justify-content: center; /* Centre les éléments dans la div */
-    align-items: flex-start; /* Aligne les éléments à gauche */
-    flex-direction: column;
-    margin: 0 auto; /* Centre la div horizontalement */
-    text-align: left; /* Aligne le texte à gauche */
-  }
+.input-move input::placeholder {
+  color: #ADADAD;
+  /* Couleur du placeholder */
+}
 
-  .input-move input::placeholder {
-    color: #ADADAD; /* Couleur du placeholder */
-  }
+.input-box {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: clamp(0px, 10px, 2vw);
+  border: 0px solid #ccc;
+  box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
+  font-size: clamp(0px, 25px, 5vw);
+  padding-left: clamp(0px, 15px, 3vw);
+  width: clamp(0px, 125px, 25vw);
+  height: clamp(0px, 50px, 10vw);
+}
 
-  .input-box{
-    display: flex;
-    background-color: #ffffff;
-    border-radius: clamp(0px, 10px, 2vw);
-    border: 0px solid #ccc;
-    box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
-    font-size: clamp(0px, 25px, 5vw);
-    padding-left: clamp(0px, 15px, 3vw);
-    width: clamp(0px, 125px, 25vw);
-    height: clamp(0px, 50px, 10vw);
-  }
+.input-text {
+  border: 1px solid #ddd;
+  border-color: #ffffff;
+  width: 80%;
+  padding: 8px;
+  font-weight: 600;
+}
+.input-text:focus {
+  outline: none;
+  /* Supprime le contour */
+  border: none;
+  /* Assure qu'aucune bordure ne s'affiche */
+}
 
-  .input-text{
-    border: 0;
-    border-color: #ffffff;
-    width: 80%;
-    font-size: clamp(0px, 30px, 7vw);
-    font-weight: 600;
-  }
+.insert-button {
+  background-color: #ffffff;
+  margin-right: clamp(0px, 5px, 1vw);
+  margin-bottom: clamp(0px, 5px, 1vw);
+  margin-top: clamp(0px, 5px, 1vw);
+}
 
-  .input-text:focus {
-    outline: none; /* Supprime le contour */
-    border: none; /* Assure qu'aucune bordure ne s'affiche */
-  }
+.svg-icon {
+  height: 100%;
+  width: 100%;
+}
 
-  .insert-button{
-    background-color: #ffffff;
-    margin-right: clamp(0px, 5px, 1vw);
-    margin-bottom: clamp(0px, 5px, 1vw);
-    margin-top: clamp(0px, 5px, 1vw);
-  }
+.score-container {
+  overflow-x: auto; /* Ajoute un défilement horizontal */
+  white-space: nowrap; /* Empêche les colonnes de se replier */
+}
 
-  .svg-icon{
-    height: 100%;
-    width: 100%;
-  }
+.score-table {
+  border-collapse: collapse;
+  width: max-content; /* Ajuste la largeur selon le contenu */
+}
 
+.score-table th, .score-table td {
+  padding: 8px 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+  white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+.sticky-column {
+  position: sticky;
+  left: 0;
+  background-color: #fff; /* Fond blanc pour rester visible */
+  z-index: 1;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optionnel : effet d'ombre */
+}
+
+.score-table {
+  background-color: #ffffff;
+  border-radius: clamp(0px, 10px, 2vw);
+  border: 0px solid #ccc;
+  box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
+  width: 100%;
+  /* Ajoutez cette ligne */
+}
+
+th,
+td {
+  height: clamp(0px, 40px, 8vw);
+}
+
+th {
+  color: #5F5F5F;
+  font-weight: 500;
+}
+
+td {
+  font-weight: 600;
+}
 </style>
-  
