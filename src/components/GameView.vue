@@ -29,9 +29,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="player in gameData.players" :key="player">
-                <td class="playername-table" :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-              </tr>
+              <td>
+                <tr v-for="player in gameData.players" :key="player">
+                  <div class="turn-rectangle" :style="{ backgroundColor: isPLayerTurn(player) }"></div>
+                  <td class="playername-table" :style="{ color: getPlayerColor(player) }">{{ player }}</td>
+                </tr>
+              </td>
             </tbody>
           </table>
 
@@ -63,7 +66,9 @@
           </div>
         </div>
       </div>
-      Tour Précédent
+      <div class="back-container">
+        <button @click="$emit('goBack')" class="back-menu">Retour</button>
+      </div>
     </div>
   </div>
 </template>
@@ -114,6 +119,12 @@ const currentPlayerColor = computed(() => {
   const playerIndex = gameData.value.players.indexOf(currentPlayer);
   return playerColors[playerIndex] || '#000';
 });
+
+const isPLayerTurn = (player) => {
+  return currentPlayerColor.value == getPlayerColor(player)
+  ? getPlayerColor(player)
+  : "#ffffff"
+};
 
 const getPlayerColor = (player) => {
   const playerIndex = gameData.value.players.indexOf(player);
@@ -320,15 +331,15 @@ h4 {
 
 .player-table {
   border-collapse: collapse;
-  width: clamp(0px, 100px, 20vw);
+  min-width: clamp(0px, 100px, 20vw);
   border: 0px;
-  margin-left: clamp(0px, 15px, 3vw);
-  margin-right: clamp(0px, 15px, 3vw);
+  margin-right: clamp(0px, 5px, 1vw);
+  overflow: hidden;
 }
 
 .player-table th,
 .player-table td {
-  text-align: left;
+  text-align: right;
   white-space: nowrap;
   /* Empêche le texte de se couper */
   background-color: #ffffff;
@@ -338,6 +349,18 @@ h4 {
 .playername-table {
   font-size: clamp(0px, 20px, 4vw);
   font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: clamp(0px, 100px, 20vw);
+  min-width: clamp(0px, 100px, 20vw);
+}
+
+.turn-rectangle{
+  display: flex;
+  width: clamp(0px, 7.5px, 1.5vw);
+  height: clamp(0px, 35px, 7vw);
+  border-bottom: clamp(0px, 15px, 3vw);
+  margin-right: clamp(0px, 5px, 1vw)
 }
 
 .scores-wrapper {
@@ -353,7 +376,7 @@ h4 {
 
 .score-table th,
 .score-table td {
-  min-width: clamp(0px, 35px, 7vw);
+  min-width: clamp(0px, 35.3125px, 7.0625vw);
   text-align: center;
   border: 0px;
   white-space: nowrap;
@@ -390,7 +413,6 @@ th{
 
 td {
   height: clamp(0px, 45px, 9vw);
-  padding-bottom: 10px;
 }
 
 th {
