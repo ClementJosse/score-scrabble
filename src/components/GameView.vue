@@ -67,7 +67,7 @@
         </div>
       </div>
       <div class="previous-turn-container">
-        <button @click="previousTurn" class="previous-turn">
+        <button v-if="isFirstMove" @click="previousTurn" class="previous-turn">
           <img src="@/assets/previous-turn.svg" alt="Tour précédent" class="svg-previous-turn" />
           Tour précédent
         </button>
@@ -96,6 +96,10 @@ const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
 
 const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
+});
+
+const isFirstMove = computed(() => {
+  return gameData.value.data[Object.keys(gameData.value.data)[0]].played.length != 0;
 });
 
 const getScoreColor = (value) => {
@@ -148,6 +152,10 @@ const isColumnFilled = (columnIndex) => {
     return gameData.value.data[player].played[columnIndex - 1] !== undefined;
   });
 };
+
+const previousTurn = () => {
+  console.log(gameData.value.data[Object.keys(gameData.value.data)[0]].played.length == 0 )
+}
 
 const addMove = async () => {
   if (newMove.value === '' || isNaN(newMove.value)) {
