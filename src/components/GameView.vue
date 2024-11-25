@@ -67,7 +67,7 @@
         </div>
       </div>
       <div class="previous-turn-container">
-        <button v-if="isFirstMove" @click="previousTurn" class="previous-turn">
+        <button v-if="hasPreviousTurn" @click="previousTurn" class="previous-turn">
           <img src="@/assets/previous-turn.svg" alt="Tour précédent" class="svg-previous-turn" />
           Tour précédent
         </button>
@@ -98,8 +98,13 @@ const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
 });
 
-const isFirstMove = computed(() => {
-  return gameData.value.data[Object.keys(gameData.value.data)[0]].played.length != 0;
+const hasPreviousTurn = computed(() => {
+  // Vérifie si au moins un joueur a des mouvements enregistrés
+  return gameData.value.players.some(
+    (player) =>
+      gameData.value.data[player].played.length > 0 &&
+      gameData.value.data[player].score.length > 0
+  );
 });
 
 const getScoreColor = (value) => {
@@ -129,8 +134,8 @@ const currentPlayerColor = computed(() => {
 
 const isPLayerTurn = (player) => {
   return currentPlayerColor.value == getPlayerColor(player)
-  ? getPlayerColor(player)
-  : "#ffffff"
+    ? getPlayerColor(player)
+    : "#ffffff"
 };
 
 const getPlayerColor = (player) => {
@@ -153,9 +158,48 @@ const isColumnFilled = (columnIndex) => {
   });
 };
 
-const previousTurn = () => {
-  console.log(gameData.value.data[Object.keys(gameData.value.data)[0]].played.length == 0 )
-}
+const previousTurn = async () => {
+  const currentPlayer = gameData.value['current-turn'];
+  const currentPlayerIndex = gameData.value.players.indexOf(currentPlayer);
+
+  // Trouver le joueur précédent
+  const previousPlayerIndex =
+    (currentPlayerIndex - 1 + gameData.value.players.length) %
+    gameData.value.players.length;
+
+  const previousPlayer = gameData.value.players[previousPlayerIndex];
+
+  // Vérifier si le joueur précédent a des coups enregistrés
+  if (
+    gameData.value.data[previousPlayer].played.length > 0 &&
+    gameData.value.data[previousPlayer].score.length > 0
+  ) {
+    // Récupérer le dernier coup et le dernier score
+    const lastMove = gameData.value.data[previousPlayer].played.pop();
+    gameData.value.data[previousPlayer].score.pop();
+
+    // Mettre le dernier coup dans le champ input-text
+    newMove.value = lastMove;
+
+    // Mettre à jour le joueur en cours
+    gameData.value['current-turn'] = previousPlayer;
+
+    // Sauvegarder les modifications dans le fichier JSON
+    try {
+      await Filesystem.writeFile({
+        path: `${props.fileName}.json`,
+        data: JSON.stringify(gameData.value, null, 2),
+        directory: Directory.Documents,
+        encoding: 'utf8',
+      });
+      console.log('Tour précédent annulé avec succès.');
+    } catch (e) {
+      console.error('Erreur lors de la sauvegarde des données :', e);
+    }
+  } else {
+    console.log("Aucun tour précédent à annuler pour ce joueur.");
+  }
+};
 
 const addMove = async () => {
   if (newMove.value === '' || isNaN(newMove.value)) {
@@ -366,7 +410,7 @@ h4 {
   min-width: clamp(0px, 100px, 20vw);
 }
 
-.turn-rectangle{
+.turn-rectangle {
   display: flex;
   width: clamp(0px, 7.5px, 1.5vw);
   height: clamp(0px, 35px, 7vw);
@@ -394,7 +438,7 @@ h4 {
   /* Empêche le texte de se couper */
 }
 
-.score-table th{
+.score-table th {
   font-size: clamp(0px, 15px, 3vw);
 }
 
@@ -410,7 +454,7 @@ h4 {
   width: 100%;
 }
 
-.tour{
+.tour {
   display: flex;
   color: #5F5F5F;
   justify-content: center;
@@ -418,7 +462,7 @@ h4 {
   font-size: clamp(0px, 17.5px, 3.5vw);
 }
 
-th{
+th {
   height: clamp(0px, 40px, 8vw);
 }
 
@@ -435,13 +479,13 @@ td {
   font-weight: 600;
 }
 
-.previous-turn-container{
+.previous-turn-container {
   display: flex;
   justify-content: right;
   height: clamp(0px, 60px, 12vw);
 }
 
-.previous-turn{
+.previous-turn {
   display: flex;
   justify-content: right;
   margin-top: clamp(0px, 12.5px, 2.5vw);
@@ -458,10 +502,11 @@ td {
 }
 
 .previous-turn:active {
-  background-color: #DADADA; /* Couleur lorsqu'on appuie */
+  background-color: #DADADA;
+  /* Couleur lorsqu'on appuie */
 }
 
-.svg-previous-turn{
+.svg-previous-turn {
   width: auto;
   height: clamp(0px, 25px, 5vw);
 }
