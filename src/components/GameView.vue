@@ -66,8 +66,11 @@
           </div>
         </div>
       </div>
-      <div class="back-container">
-        <button @click="$emit('goBack')" class="back-menu">Retour</button>
+      <div class="previous-turn-container">
+        <button @click="previousTurn" class="previous-turn">
+          <img src="@/assets/previous-turn.svg" alt="Tour précédent" class="svg-previous-turn" />
+          Tour précédent
+        </button>
       </div>
     </div>
   </div>
@@ -422,5 +425,36 @@ th {
 
 td {
   font-weight: 600;
+}
+
+.previous-turn-container{
+  display: flex;
+  justify-content: right;
+  height: clamp(0px, 60px, 12vw);
+}
+
+.previous-turn{
+  display: flex;
+  justify-content: right;
+  margin-top: clamp(0px, 12.5px, 2.5vw);
+  color: #027A56;
+  font-size: clamp(0px, 16.5px, 3.3vw);
+  align-items: center;
+  background-color: #00000000;
+  gap: clamp(0px, 5px, 1vw);
+  font-weight: 600;
+  background-color: #ffffff;
+  width: clamp(0px, 170px, 34vw);
+  padding: clamp(0px, 10px, 2vw);
+  border-radius: clamp(0px, 10px, 2vw);
+}
+
+.previous-turn:active {
+  background-color: #DADADA; /* Couleur lorsqu'on appuie */
+}
+
+.svg-previous-turn{
+  width: auto;
+  height: clamp(0px, 25px, 5vw);
 }
 </style>
