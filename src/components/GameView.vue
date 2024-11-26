@@ -17,55 +17,11 @@
         </div>
       </div>
 
-      <!-- Tableau des scores -->
-      <h4>Scores par tour</h4>
-      <div class="score-container">
-        <div class="tables-wrapper">
-          <!-- Tableau des joueurs -->
-          <table class="player-table">
-            <thead>
-              <tr>
-                <th class="tour">Tour</th>
-              </tr>
-            </thead>
-            <tbody>
-              <td>
-                <tr v-for="player in gameData.players" :key="player">
-                  <div class="turn-rectangle" :style="{ backgroundColor: isPLayerTurn(player) }"></div>
-                  <td class="playername-table" :style="{ color: getPlayerColor(player) }">{{ player }}</td>
-                </tr>
-              </td>
-            </tbody>
-          </table>
+      <!-- Utilisation du composant ScoreTable -->
+      <ScoreTable :players="gameData.players" :gameData="gameData" :maxTurns="maxTurns"
+        :currentPlayer="gameData['current-turn']" :playerColors="playerColors"
+        style="margin-top: clamp(0px,10vw,50px);" />
 
-          <!-- Tableau des scores -->
-          <div ref="scoreContainer" class="scores-wrapper">
-            <table class="score-table">
-              <thead>
-                <tr>
-                  <th v-for="index in maxTurns" :key="'header-' + index"
-                    :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8' }">
-                    <span v-if="isColumnFilled(index)">T{{ index }}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="player in gameData.players" :key="player">
-                  <td v-for="index in maxTurns" :key="'score-' + player + '' + index"
-                    :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8', width: '20px' }">
-                    <span
-                      v-if="getPlayedForPlayer(player)[index - 1] !== undefined && getPlayedForPlayer(player)[index - 1] !== '-'"
-                      :style="{ color: getScoreColor(getPlayedForPlayer(player)[index - 1]) }">
-                      {{ getPlayedForPlayer(player)[index - 1] }}
-                    </span>
-                    <span v-else>...</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
       <div class="previous-turn-container">
         <button v-if="hasPreviousTurn" @click="previousTurn" class="previous-turn">
           <img src="@/assets/previous-turn.svg" alt="Tour précédent" class="svg-previous-turn" />
@@ -81,6 +37,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import ScoreTable from '@/components/ScoreTable.vue'; // Import du composant
 import { defineProps } from 'vue';
 
 const props = defineProps({
@@ -107,17 +64,6 @@ const hasPreviousTurn = computed(() => {
   );
 });
 
-const getScoreColor = (value) => {
-  if (value > 0) {
-    return 'rgb(0, 75, 53)'; // Vert
-  } else if (value <= 0) {
-    return 'rgb(75, 0, 1)'; // Rouge
-  } else {
-    return 'rgb(253, 253, 253)'; // Couleur par défaut
-  }
-};
-
-
 // Ajoutez cette fonction pour faire défiler vers la droite
 const scrollToRight = () => {
   if (scoreContainer.value) {
@@ -132,33 +78,8 @@ const currentPlayerColor = computed(() => {
   return playerColors[playerIndex] || '#000';
 });
 
-const isPLayerTurn = (player) => {
-  return currentPlayerColor.value == getPlayerColor(player)
-    ? getPlayerColor(player)
-    : "#ffffff"
-};
-
-const getPlayerColor = (player) => {
-  const playerIndex = gameData.value.players.indexOf(player);
-  return playerColors[playerIndex] || '#000';
-};
-
-const getPlayedForPlayer = (player) => {
-  return gameData.value.data[player].played.length > 0
-    ? gameData.value.data[player].played
-    : [];
-};
-
-const isColumnFilled = (columnIndex) => {
-  if (!gameData.value) return false;
-
-  // Vérifie si au moins un joueur a une donnée pour cette colonne
-  return gameData.value.players.some(player => {
-    return gameData.value.data[player].played[columnIndex - 1] !== undefined;
-  });
-};
-
 const previousTurn = async () => {
+  console.log(gameData.value.data)
   const currentPlayer = gameData.value['current-turn'];
   const currentPlayerIndex = gameData.value.players.indexOf(currentPlayer);
 
@@ -363,121 +284,6 @@ h4 {
   width: 100%;
 }
 
-.score-container {
-  overflow-x: auto;
-  /* Ajoute un défilement horizontal */
-  white-space: nowrap;
-  /* Empêche les colonnes de se replier */
-  border-radius: clamp(0px, 10px, 2vw);
-  border: 0px solid #ccc;
-  box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
-}
-
-.score-table {
-  border-collapse: collapse;
-  width: max-content;
-  /* Ajuste la largeur selon le contenu */
-}
-
-.tables-wrapper {
-  display: flex;
-  align-items: flex-start;
-}
-
-.player-table {
-  border-collapse: collapse;
-  min-width: clamp(0px, 100px, 20vw);
-  border: 0px;
-  margin-right: clamp(0px, 5px, 1vw);
-  overflow: hidden;
-}
-
-.player-table th,
-.player-table td {
-  text-align: right;
-  white-space: nowrap;
-  /* Empêche le texte de se couper */
-  background-color: #ffffff;
-  border: 0px;
-}
-
-.playername-table {
-  font-size: clamp(0px, 20px, 4vw);
-  font-weight: 600;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: clamp(0px, 100px, 20vw);
-  min-width: clamp(0px, 100px, 20vw);
-}
-
-.turn-rectangle {
-  display: flex;
-  width: clamp(0px, 7.5px, 1.5vw);
-  height: clamp(0px, 35px, 7vw);
-  border-bottom: clamp(0px, 15px, 3vw);
-  margin-right: clamp(0px, 5px, 1vw)
-}
-
-.scores-wrapper {
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.score-table {
-  border-collapse: collapse;
-  width: max-content;
-  /* Ajuste la largeur selon le contenu */
-}
-
-.score-table th,
-.score-table td {
-  min-width: clamp(0px, 35.3125px, 7.0625vw);
-  text-align: center;
-  border: 0px;
-  white-space: nowrap;
-  /* Empêche le texte de se couper */
-}
-
-.score-table th {
-  font-size: clamp(0px, 15px, 3vw);
-}
-
-.score-table td {
-  font-size: clamp(0px, 20px, 4vw);
-}
-
-.score-table {
-  background-color: #ffffff;
-  border-radius: clamp(0px, 10px, 2vw);
-  border: 0px solid #ccc;
-  box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
-  width: 100%;
-}
-
-.tour {
-  display: flex;
-  color: #5F5F5F;
-  justify-content: center;
-  align-items: center;
-  font-size: clamp(0px, 17.5px, 3.5vw);
-}
-
-th {
-  height: clamp(0px, 40px, 8vw);
-}
-
-td {
-  height: clamp(0px, 45px, 9vw);
-}
-
-th {
-  color: #5F5F5F;
-  font-weight: 500;
-}
-
-td {
-  font-weight: 600;
-}
 
 .previous-turn-container {
   display: flex;

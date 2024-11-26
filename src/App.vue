@@ -112,30 +112,38 @@ export default {
 
 
 <style>
-body, html {
-  overflow-x: hidden; /* Empêche le scroll horizontal global */
+body,
+html {
+  overflow-x: hidden;
+  /* Empêche le scroll horizontal global */
 }
-.main-container{
+
+.main-container {
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
   transition: transform 0.5s ease-in-out;
 }
 
-.main-menu{
+.main-menu {
   display: flex;
-  flex-direction: column; /* Dispose les éléments verticalement */
-  align-items: center; /* Centre les éléments horizontalement */
+  flex-direction: column;
+  /* Dispose les éléments verticalement */
+  align-items: center;
+  /* Centre les éléments horizontalement */
   width: clamp(0px, 400px, 80vw);
-  margin: auto; /* Centre horizontalement la div */
+  margin: auto;
+  /* Centre horizontalement la div */
   margin-top: clamp(0px, 100px, 20vw);
 }
 
 .game-view {
   display: flex;
-  flex-direction: column; /* Dispose les éléments verticalement */
+  flex-direction: column;
+  /* Dispose les éléments verticalement */
   width: clamp(0px, 400px, 80vw);
-  margin: auto; /* Centre horizontalement la div */
+  margin: auto;
+  /* Centre horizontalement la div */
 }
 
 .json-list {
@@ -144,11 +152,14 @@ body, html {
 }
 
 .new-game {
-  color: #ffffff; /* Définit la couleur du texte en vert */
-  background-color: #027A56; /* Définit la couleur du texte en vert */
+  color: #ffffff;
+  /* Définit la couleur du texte en vert */
+  background-color: #027A56;
+  /* Définit la couleur du texte en vert */
   width: 100%;
   height: clamp(0px, 65px, 13vw);
-  font-size: clamp(0px, 30px, 6vw); /* Ajuste la taille du texte */
+  font-size: clamp(0px, 30px, 6vw);
+  /* Ajuste la taille du texte */
   font-weight: 600;
   border-radius: clamp(0px, 10px, 2vw);
   border: 0px;
@@ -156,33 +167,36 @@ body, html {
 }
 
 .new-game:active {
-  background-color: #006345; /* Couleur lorsqu'on appuie */
+  background-color: #006345;
+  /* Couleur lorsqu'on appuie */
 }
 
-.player-menu{
+.player-menu {
   width: clamp(0px, 400px, 80vw);
   height: 100vh;
   margin: auto;
 }
 
-.back-container{
+.back-container {
   display: flex;
 }
 
-.back-menu{
+.back-menu {
   margin-top: clamp(0px, 50px, 10vw);
   width: clamp(0px, 100px, 20vw);
   height: clamp(0px, 50px, 10vw);
   border-radius: clamp(0px, 10px, 2vw);
   border: 0px;
-  font-size: clamp(0px, 20px, 4vw); /* Ajuste la taille du texte */
+  font-size: clamp(0px, 20px, 4vw);
+  /* Ajuste la taille du texte */
   font-weight: 600;
   color: #006345;
   background-color: #ffffff;
 }
 
 .back-menu:active {
-  background-color: #DADADA; /* Couleur lorsqu'on appuie */
+  background-color: #DADADA;
+  /* Couleur lorsqu'on appuie */
 }
 
 #app {
