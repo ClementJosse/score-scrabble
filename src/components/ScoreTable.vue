@@ -1,4 +1,5 @@
 <template>
+    <h3>Scores par tour</h3>
     <div class="score-container">
         <div class="tables-wrapper">
             <!-- Tableau des joueurs -->

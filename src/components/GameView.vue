@@ -28,6 +28,11 @@
           Tour précédent
         </button>
       </div>
+
+      <!-- Graphique des scores -->
+      <ScoreGraph :gameData="gameData" :players="gameData.players"
+        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']" />
+
     </div>
   </div>
 </template>
@@ -37,7 +42,8 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import ScoreTable from '@/components/ScoreTable.vue'; // Import du composant
+import ScoreTable from '@/components/ScoreTable.vue';
+import ScoreGraph from "@/components/ScoreGraph.vue";
 import { defineProps } from 'vue';
 
 const props = defineProps({
