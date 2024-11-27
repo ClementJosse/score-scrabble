@@ -112,17 +112,16 @@ export default {
 
 
 <style>
-body,
-html {
-  overflow-x: hidden;
-  /* Empêche le scroll horizontal global */
+html,
+body {
+  height: auto;
+  min-height: 100% ;
+  overflow: auto !important; /* Forcer le défilement vertical */
 }
 
 .main-container {
-  display: flex;
-  flex-direction: row;
-  overflow-x: hidden;
-  transition: transform 0.5s ease-in-out;
+  height: auto !important;
+  overflow: auto !important;
 }
 
 .main-menu {

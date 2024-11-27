@@ -33,7 +33,8 @@
       <ScoreGraph :gameData="gameData" :players="gameData.players"
         :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']" />
 
-      <AverageScore :gameData="gameData" :players="gameData.players"/>
+      <AverageScore :gameData="gameData" :players="gameData.players"
+        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']"/>
     </div>
   </div>
 </template>
