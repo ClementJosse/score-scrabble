@@ -98,6 +98,7 @@ const isColumnFilled = (columnIndex) => {
     font-weight: 400;
     text-align: center;
     color: #5F5F5F;
+    padding-top: clamp(0px, 40px, 8vw);
 }
 
 .score-container {

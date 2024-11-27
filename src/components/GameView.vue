@@ -9,7 +9,12 @@
       <div class="input-move">
         <h4>Score:</h4>
         <div class="input-box">
-          <input class="input-text" v-model="newMove" type="number" placeholder="... " @keydown.enter="addMove"
+          <input class="input-text" 
+          ref="inputField" 
+          v-model="newMove" 
+          type="number" 
+          placeholder="... " 
+          @keydown.enter="addMove"
             :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
           <button v-if="isValidMove" @click="addMove" class="insert-button">
             <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
@@ -60,6 +65,7 @@ const gameData = ref(null);
 const newMove = ref('');
 const maxTurns = ref(6);
 const scoreContainer = ref(null);
+const inputField = ref(null); 
 
 const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
 
@@ -166,13 +172,15 @@ const addMove = async () => {
     newMove.value = '';
     console.log('Mise à jour du fichier JSON réussie');
 
-    // Utilisez nextTick pour vous assurer que l'interface est mise à jour avant de faire défiler
-    await nextTick();
-    scrollToRight();
+    // Garder le focus sur le champ d'entrée
+    nextTick(() => {
+      inputField.value.focus(); // Focus après le DOM mis à jour
+    });
   } catch (e) {
     console.error('Erreur lors de la mise à jour du fichier JSON :', e);
   }
 };
+
 
 
 onMounted(async () => {
@@ -243,6 +251,7 @@ h4 {
   font-weight: 400;
   color: #5F5F5F;
   margin-bottom: 0;
+  padding-top: clamp(0px, 15px, 3vw);
 }
 
 .input-move {
@@ -270,16 +279,16 @@ h4 {
   border-radius: clamp(0px, 10px, 2vw);
   border: 0px solid #ccc;
   box-shadow: 0 clamp(0px, 5px, 1vw) clamp(0px, 10px, 2vw) rgba(0, 0, 0, 0.123);
-  font-size: clamp(0px, 25px, 5vw);
+  font-size: clamp(0px, 40px, 8vw);
   padding-left: clamp(0px, 15px, 3vw);
-  width: clamp(0px, 125px, 25vw);
-  height: clamp(0px, 50px, 10vw);
+  width: clamp(0px, 200px, 40vw);
+  height: clamp(0px, 80px, 16vw);
 }
 
 .input-text {
   border: 1px solid #ddd;
   border-color: #ffffff;
-  width: 80%;
+  width: 65%;
   font-weight: 600;
 }
 
@@ -299,7 +308,7 @@ h4 {
 
 .svg-icon {
   height: 100%;
-  width: 100%;
+  width: clamp(0px, 55px, 11vw);
 }
 
 

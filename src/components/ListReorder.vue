@@ -121,7 +121,7 @@ h4 {
   color: #000000;
   font-weight: 500;
   margin-bottom: clamp(0px, 25px, 5vw);
-  margin-top: clamp(0px, 125px, 25vw);
+  margin-top: clamp(0px, 100px, 20vw);
 }
 
 .player-list-button-container {
@@ -256,7 +256,7 @@ h4 {
 p {
   color: #5F5F5F;
   font-size: clamp(0px, 15px, 3vw);
-  margin-top: clamp(0px, 150px, 30vw);
+  margin-top: clamp(0px, 100px, 20vw);
 }
 
 .new-game:disabled {

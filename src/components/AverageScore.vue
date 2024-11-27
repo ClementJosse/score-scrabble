@@ -1,6 +1,6 @@
 <template>
     <div>
-        Moyenne de point par tour
+        <h4 class="average-title">Moyenne de point par tour</h4>
         <div class="average-score-container">
             <span v-for="player in playersData" :key="player.name" class="average-score-item">
                 <span class="average-score-playername" :style="{ color: getPlayerColor(player.name) }">
@@ -53,12 +53,24 @@ const playersData = computed(() =>
   
 
 <style scoped>
+
+
+.average-title {
+    font-size: clamp(0px, 15px, 3vw);
+    font-weight: 400;
+    text-align: center;
+    color: #5F5F5F;
+    padding-top: clamp(0px, 15px, 3vw);
+}
+
+
+
 .average-score-container {
     display: flex;
-    flex-wrap: wrap; /* Permet d'adapter les éléments sur plusieurs lignes */
     justify-content: center; /* Centre les éléments horizontalement */
-    gap: 20px; /* Espacement entre les joueurs */
-    margin-top: 20px;
+    margin-top: clamp(0px, 10px, 2vw);
+    gap: clamp(0px, 10px, 2vw);
+    margin-bottom: clamp(0px, 60px, 12vw);
 }
 
 .average-score-item {
@@ -66,24 +78,23 @@ const playersData = computed(() =>
     flex-direction: column; /* Aligne le nom et la valeur verticalement */
     align-items: center; /* Centre les éléments dans chaque colonne */
     text-align: center; /* Centre le texte */
-    width: clamp(92.5px, 18.5vw, 120px); /* Largeur responsive */
-    height: clamp(92.5px, 18.5vw, 120px); /* Hauteur responsive */
 }
 
 .average-score-playername {
     font-weight: bold;
-    font-size: clamp(12px, 1.5rem, 2vw); /* Taille responsive */
+    font-size: clamp(0px, 20px, 4vw); /* Taille responsive */
     margin-bottom: 8px; /* Espacement sous le nom */
 }
 
 .average-score-value {
     color: white; /* Texte blanc */
     font-weight: bold;
-    font-size: clamp(14px, 1.5rem, 2vw); /* Taille responsive pour la valeur */
-    padding: 10px;
-    border-radius: 8px; /* Coins arrondis */
+    font-size: clamp(0px, 20px, 4vw); /* Taille responsive pour la valeur */
+    border-radius: clamp(0px, 10px, 2vw);
     display: flex;
     align-items: center;
     justify-content: center;
+    height: clamp(0px, 50px, 10vw);
+    width: clamp(0px, 92.5px, 18.5vw);
 }
 </style>
