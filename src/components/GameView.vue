@@ -31,8 +31,9 @@
 
       <!-- Graphique des scores -->
       <ScoreGraph :gameData="gameData" :players="gameData.players"
-        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']" 
-        />
+        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']" />
+
+      <AverageScore :gameData="gameData" :players="gameData.players"/>
     </div>
   </div>
 </template>
@@ -44,10 +45,14 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import ScoreTable from '@/components/ScoreTable.vue';
 import ScoreGraph from "@/components/ScoreGraph.vue";
+import AverageScore from './AverageScore.vue';
 import { defineProps } from 'vue';
 
 const props = defineProps({
-  fileName: String
+  fileName: String,
+  players: Array,
+  playerColors: Array,
+  gameData: Object,
 });
 
 const gameData = ref(null);
@@ -180,7 +185,13 @@ onMounted(async () => {
     maxTurns.value = Math.max(
       ...gameData.value.players.map(player => gameData.value.data[player].played.length)
     );
-
+    
+    const parsedData = JSON.parse(result.data);
+    if (parsedData && parsedData.players && parsedData.data) {
+      gameData.value = parsedData;
+    } else {
+      console.error("Données de jeu invalides :", parsedData);
+    }
     // Faites défiler vers la droite lors du chargement des données initiales
     nextTick(() => {
       scrollToRight();
