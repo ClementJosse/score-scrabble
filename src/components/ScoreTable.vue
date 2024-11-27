@@ -1,5 +1,5 @@
 <template>
-    <h3>Scores par tour</h3>
+    <h4 class="table-title">Scores par tour</h4>
     <div class="score-container">
         <div class="tables-wrapper">
             <!-- Tableau des joueurs -->
@@ -93,6 +93,13 @@ const isColumnFilled = (columnIndex) => {
 </script>
 
 <style scoped>
+.table-title{
+    font-size: clamp(0px, 15px, 3vw);
+    font-weight: 400;
+    text-align: center;
+    color: #5F5F5F;
+}
+
 .score-container {
     overflow-x: auto;
     /* Ajoute un défilement horizontal */
