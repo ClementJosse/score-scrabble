@@ -19,7 +19,7 @@
 
 
 <script setup>
-import { ref, watch, defineProps, computed } from "vue";
+import { ref, watch, defineProps, computed, onMounted } from "vue";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
@@ -158,11 +158,18 @@ const updateChart = () => {
     };
 };
 
+onMounted(() => {
+    if (props.gameData) {
+        updateChart(); // Charge le graphique lors de la montée du composant
+    }
+});
+
 watch(
     () => props.gameData,
     updateChart,
     { deep: true }
 );
+
 </script>
 
 <style scoped>

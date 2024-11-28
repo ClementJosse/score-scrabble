@@ -36,10 +36,10 @@
 
       <!-- Graphique des scores -->
       <ScoreGraph :gameData="gameData" :players="gameData.players"
-        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']" />
+        :playerColors="playerColors" />
 
       <AverageScore :gameData="gameData" :players="gameData.players"
-        :playerColors="['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4']"/>
+        :playerColors="playerColors"/>
     </div>
   </div>
 </template>
