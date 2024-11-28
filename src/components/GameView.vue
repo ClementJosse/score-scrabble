@@ -4,18 +4,16 @@
       <button @click="$emit('goBack')" class="back-menu">Retour</button>
     </div>
     <div v-if="gameData" class="gameData">
+      <div v-if="finisher === gameData.players.length - 1">
+        La partie est sur le point de se terminer !
+      </div>
       <h2>Au tour de:</h2>
       <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'].toUpperCase() }}</h1>
       <div class="input-move">
         <h4>Score:</h4>
         <div class="input-box">
-          <input class="input-text" 
-          ref="inputField" 
-          v-model="newMove" 
-          type="number" 
-          placeholder="... " 
-          @keydown.enter="addMove"
-            :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
+          <input class="input-text" ref="inputField" v-model="newMove" type="number" placeholder="... "
+            @keydown.enter="addMove" :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
           <button v-if="isValidMove" @click="addMove" class="insert-button">
             <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
           </button>
@@ -35,11 +33,9 @@
       </div>
 
       <!-- Graphique des scores -->
-      <ScoreGraph :gameData="gameData" :players="gameData.players"
-        :playerColors="playerColors" />
+      <ScoreGraph :gameData="gameData" :players="gameData.players" :playerColors="playerColors" />
 
-      <AverageScore :gameData="gameData" :players="gameData.players"
-        :playerColors="playerColors"/>
+      <AverageScore :gameData="gameData" :players="gameData.players" :playerColors="playerColors" />
     </div>
   </div>
 </template>
@@ -65,13 +61,20 @@ const gameData = ref(null);
 const newMove = ref('');
 const maxTurns = ref(6);
 const scoreContainer = ref(null);
-const inputField = ref(null); 
+const inputField = ref(null);
+var bonusPoints = 0;
+const finisher = ref(0);
 
 const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
 
 const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
 });
+
+const isFinishing = () => {
+  console.log("isFinishing?", finisher.value == gameData.value.players.length - 1)
+  return finisher.value == gameData.value.players.length - 1;
+};
 
 const hasPreviousTurn = computed(() => {
   // Vérifie si au moins un joueur a des mouvements enregistrés
@@ -97,7 +100,7 @@ const currentPlayerColor = computed(() => {
 });
 
 const previousTurn = async () => {
-  console.log(gameData.value.data)
+  console.log(gameData.value.data);
   const currentPlayer = gameData.value['current-turn'];
   const currentPlayerIndex = gameData.value.players.indexOf(currentPlayer);
 
@@ -107,6 +110,21 @@ const previousTurn = async () => {
     gameData.value.players.length;
 
   const previousPlayer = gameData.value.players[previousPlayerIndex];
+
+  // Vérifier si un bonus a été ajouté
+  if (isFinishing()) {
+    console.log("Retrait du bonus pour", currentPlayer);
+    gameData.value.data[currentPlayer].score.pop()
+    const lastPlayed = gameData.value.data[currentPlayer].played.pop()
+    bonusPoints -= lastPlayed
+
+    //const enderman = gameData.value.players[(currentPlayerIndex + 1) % gameData.value.players.length];
+    //const lastPlayed = gameData.value.data[enderman].played.pop();
+    //
+    //if (lastPlayed === bonusPoints) {
+    //  gameData.value.data[enderman].score.pop(); // Supprime le bonus des scores
+    //}
+  }
 
   // Vérifier si le joueur précédent a des coups enregistrés
   if (
@@ -122,6 +140,9 @@ const previousTurn = async () => {
 
     // Mettre à jour le joueur en cours
     gameData.value['current-turn'] = previousPlayer;
+
+    // Recalculer les joueurs avec des scores négatifs
+    countPlayersWithNegativeScores();
 
     // Sauvegarder les modifications dans le fichier JSON
     try {
@@ -162,6 +183,24 @@ const addMove = async () => {
     ...gameData.value.players.map(player => gameData.value.data[player].played.length)
   );
 
+  if (newMove.value < 0) {
+    bonusPoints = -calculateNegativeSum();
+    console.log(bonusPoints)
+    finisher.value = countPlayersWithNegativeScores();
+    console.log(finisher)
+    if (isFinishing()) {
+      console.log("ENDING");
+      console.log(gameData.value.players[nextPlayerIndex]);
+      var enderman = gameData.value.players[nextPlayerIndex];
+
+      gameData.value.data[enderman].played.push(bonusPoints);
+      const currentScore = gameData.value.data[enderman].score;
+      const newScore = currentScore.length > 0 ? currentScore[currentScore.length - 1] + bonusPoints : bonusPoints;
+      gameData.value.data[enderman].score.push(newScore);
+      gameData.value['current-turn'] = enderman;
+    }
+  }
+
   try {
     await Filesystem.writeFile({
       path: `${props.fileName}.json`,
@@ -182,6 +221,61 @@ const addMove = async () => {
 };
 
 
+// Fonction principale
+const calculateNegativeSum = () => {
+  console.log("Début du calcul de la somme des scores négatifs");
+
+  if (!gameData.value || !gameData.value.players) {
+    console.error("Données de jeu ou joueurs non définis.");
+    return 0;
+  }
+
+  const totalNegativeSum = gameData.value.players.reduce((total, player) => {
+    const playerNegativeSum = calculatePlayerNegativeSum(player);
+    return total + playerNegativeSum;
+  }, 0);
+
+  console.log("Somme totale des scores négatifs :", totalNegativeSum);
+  return totalNegativeSum;
+};
+
+// Fonction pour obtenir les scores d'un joueur
+const getPlayerScores = (player) => {
+  const played = gameData.value.data?.[player]?.played || [];
+  return played;
+};
+
+// Fonction pour filtrer les scores négatifs
+const filterNegativeScores = (scores) => {
+  const negativeScores = scores.filter((score) => typeof score === "number" && score < 0);
+  return negativeScores;
+};
+
+// Fonction pour calculer la somme des scores négatifs d'un joueur
+const calculatePlayerNegativeSum = (player) => {
+  const scores = getPlayerScores(player);
+  const negativeScores = filterNegativeScores(scores);
+  const sum = negativeScores.reduce((acc, score) => acc + score, 0);
+  return sum;
+};
+
+const countPlayersWithNegativeScores = () => {
+  if (!gameData.value || !gameData.value.players) {
+    finisher.value = 0; // Réinitialise à 0 si données non définies
+    return 0;
+  }
+
+  // Compter les joueurs avec au moins un score négatif
+  const count = gameData.value.players.filter((player) => {
+    const played = gameData.value.data?.[player]?.played || [];
+    return played.some((score) => typeof score === "number" && score < 0);
+  }).length;
+
+  console.log("Nombre de joueurs avec des scores négatifs :", count);
+  finisher.value = count; // Met à jour finisher
+  return count;
+};
+
 
 onMounted(async () => {
   try {
@@ -194,7 +288,10 @@ onMounted(async () => {
     maxTurns.value = Math.max(
       ...gameData.value.players.map(player => gameData.value.data[player].played.length)
     );
-    
+
+    bonusPoints = -calculateNegativeSum();
+    finisher.value = countPlayersWithNegativeScores();
+
     const parsedData = JSON.parse(result.data);
     if (parsedData && parsedData.players && parsedData.data) {
       gameData.value = parsedData;
