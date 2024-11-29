@@ -5,7 +5,17 @@
     </div>
     <div v-if="gameData" class="gameData">
       <div v-if="finisher === gameData.players.length - 1">
-        <button class="end-game">Terminer la partie</button>
+        <div>
+          <div v-if="gameData?.status === 'ongoing'">
+            <button @click="endTheGame" class="end-game-button">Terminer la partie</button>
+          </div>
+          <div v-else class="turn-info">
+            <h2>Gagnant:</h2>
+            <h1 v-if="winner" :style="{ color: winner.color }">{{ winner.name.toUpperCase() }}</h1>
+            <FinalScore :gameData="gameData" :players="gameData.players" :playerColors="playerColors" />
+
+          </div>
+        </div>
       </div>
       <div v-else>
         <div class="turn-info">
@@ -31,7 +41,7 @@
         style="margin-top: clamp(0px,10vw,50px);" />
 
       <div class="previous-turn-container">
-        <button v-if="hasPreviousTurn" @click="previousTurn" class="previous-turn">
+        <button v-if="hasPreviousTurn && gameData?.status === 'ongoing'" @click="previousTurn" class="previous-turn">
           <img src="@/assets/previous-turn.svg" alt="Tour précédent" class="svg-previous-turn" />
           Tour précédent
         </button>
@@ -53,6 +63,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import ScoreTable from '@/components/ScoreTable.vue';
 import ScoreGraph from "@/components/ScoreGraph.vue";
 import AverageScore from './AverageScore.vue';
+import FinalScore from './FinalScore.vue';
 import { defineProps } from 'vue';
 
 const props = defineProps({
@@ -71,6 +82,54 @@ var bonusPoints = 0;
 const finisher = ref(0);
 
 const playerColors = ['#4A9FFF', '#F16D6A', '#02BA73', '#DB76E4'];
+
+const endTheGame = async () => {
+  if (!gameData.value) return;
+
+  // Mettre à jour le statut du jeu de manière réactive
+  gameData.value = {
+    ...gameData.value,
+    status: 'ended',
+  };
+
+  // Sauvegarder les modifications dans le fichier JSON
+  try {
+    await Filesystem.writeFile({
+      path: `${props.fileName}.json`,
+      data: JSON.stringify(gameData.value, null, 2),
+      directory: Directory.Documents,
+      encoding: 'utf8',
+    });
+    console.log('Statut de la partie mis à jour : "ended"');
+  } catch (e) {
+    console.error('Erreur lors de la mise à jour du statut de la partie :', e);
+  }
+};
+
+
+const winner = computed(() => {
+  if (!gameData.value || !gameData.value.players.length) return null;
+
+  // Trouver le joueur avec le score le plus élevé
+  let highestScore = -Infinity;
+  let winnerIndex = 0;
+
+  gameData.value.players.forEach((player, index) => {
+    const scores = gameData.value.data?.[player]?.score || [];
+    const totalScore = scores.length ? scores[scores.length - 1] : 0;
+
+    if (totalScore > highestScore) {
+      highestScore = totalScore;
+      winnerIndex = index;
+    }
+  });
+
+  return {
+    name: gameData.value.players[winnerIndex],
+    color: playerColors[winnerIndex],
+  };
+});
+
 
 const isValidMove = computed(() => {
   return newMove.value !== '' && !isNaN(newMove.value);
@@ -218,7 +277,7 @@ const addMove = async () => {
 
     // Garder le focus sur le champ d'entrée
     nextTick(() => {
-      if(finisher.value !== gameData.value.players.length - 1){
+      if (finisher.value !== gameData.value.players.length - 1) {
         inputField.value.focus(); // Focus après le DOM mis à jour
       }
     });
@@ -362,7 +421,7 @@ h4 {
   height: clamp(0px, 208px, 41.6vw);
 }
 
-.end-game {
+.end-game-button {
   color: #ffffff;
   /* Définit la couleur du texte en vert */
   background-color: #027A56;
