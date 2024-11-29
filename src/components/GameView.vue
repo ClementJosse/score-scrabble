@@ -5,20 +5,25 @@
     </div>
     <div v-if="gameData" class="gameData">
       <div v-if="finisher === gameData.players.length - 1">
-        La partie est sur le point de se terminer !
+        <button class="end-game">Terminer la partie</button>
       </div>
-      <h2>Au tour de:</h2>
-      <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'].toUpperCase() }}</h1>
-      <div class="input-move">
-        <h4>Score:</h4>
-        <div class="input-box">
-          <input class="input-text" ref="inputField" v-model="newMove" type="number" placeholder="... "
-            @keydown.enter="addMove" :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
-          <button v-if="isValidMove" @click="addMove" class="insert-button">
-            <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
-          </button>
+      <div v-else>
+        <div class="turn-info">
+          <h2>Au tour de:</h2>
+          <h1 :style="{ color: currentPlayerColor }">{{ gameData['current-turn'].toUpperCase() }}</h1>
+          <div class="input-move">
+            <h4>Score:</h4>
+            <div class="input-box">
+              <input class="input-text" ref="inputField" v-model="newMove" type="number" placeholder="... "
+                @keydown.enter="addMove" :style="{ color: newMove > 0 ? '#004B35' : '#4B0001' }" />
+              <button v-if="isValidMove" @click="addMove" class="insert-button">
+                <img src="@/assets/enter-value.svg" alt="Ajouter" class="svg-icon" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
 
       <!-- Utilisation du composant ScoreTable -->
       <ScoreTable :players="gameData.players" :gameData="gameData" :maxTurns="maxTurns"
@@ -213,7 +218,9 @@ const addMove = async () => {
 
     // Garder le focus sur le champ d'entrée
     nextTick(() => {
-      inputField.value.focus(); // Focus après le DOM mis à jour
+      if(finisher.value !== gameData.value.players.length - 1){
+        inputField.value.focus(); // Focus après le DOM mis à jour
+      }
     });
   } catch (e) {
     console.error('Erreur lors de la mise à jour du fichier JSON :', e);
@@ -347,8 +354,28 @@ h4 {
   font-size: clamp(0px, 15px, 3vw);
   font-weight: 400;
   color: #5F5F5F;
-  margin-bottom: 0;
+  margin-top: 0px;
   padding-top: clamp(0px, 15px, 3vw);
+}
+
+.turn-info {
+  height: clamp(0px, 208px, 41.6vw);
+}
+
+.end-game {
+  color: #ffffff;
+  /* Définit la couleur du texte en vert */
+  background-color: #027A56;
+  /* Définit la couleur du texte en vert */
+  width: 100%;
+  height: clamp(0px, 65px, 13vw);
+  font-size: clamp(0px, 30px, 6vw);
+  /* Ajuste la taille du texte */
+  font-weight: 600;
+  border-radius: clamp(0px, 10px, 2vw);
+  border: 0px;
+  margin-bottom: clamp(0px, 80.5px, 16.1vw);
+  margin-top: clamp(0px, 80.5px, 16.1vw);
 }
 
 .input-move {
@@ -362,6 +389,7 @@ h4 {
   /* Centre la div horizontalement */
   text-align: left;
   /* Aligne le texte à gauche */
+  width: fit-content;
 }
 
 .input-move input::placeholder {

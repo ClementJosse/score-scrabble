@@ -40,7 +40,7 @@
                                     :style="{ color: getScoreColor(getPlayedForPlayer(player)[index - 1]) }">
                                     {{ getPlayedForPlayer(player)[index - 1] }}
                                 </span>
-                                <span v-else>...</span>
+                                <span v-else>.</span>
                             </td>
                         </tr>
                     </tbody>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick, onMounted} from 'vue';
 import { defineProps } from 'vue';
 
 const props = defineProps({
@@ -76,6 +76,7 @@ const getPlayerColor = (player) => {
 };
 
 const getScoreColor = (value) => {
+    scrollToRight();
     if (value > 0) return 'rgb(0, 75, 53)'; // Vert
     if (value <= 0) return 'rgb(75, 0, 1)'; // Rouge
     return 'rgb(253, 253, 253)'; // Par défaut
@@ -90,6 +91,22 @@ const isColumnFilled = (columnIndex) => {
         return props.gameData.data[player].played[columnIndex - 1] !== undefined;
     });
 };
+
+const scrollToRight = () => {
+  if (scoreContainer.value) {
+    scoreContainer.value.scrollLeft = scoreContainer.value.scrollWidth;
+  }
+};
+
+onMounted(async () => {
+  try {
+    nextTick(() => {
+      scrollToRight();
+    });
+  } catch (e) {
+    console.error('Erreur lors du chargement du fichier JSON :', e);
+  }
+});
 </script>
 
 <style scoped>
