@@ -24,6 +24,7 @@ const props = defineProps({
     players: Array, // Liste des joueurs
     playerColors: Array, // Liste des couleurs
     gameData: Object, // Données du jeu
+    isFinishing: Boolean,
 });
 
 // Fonction pour obtenir la couleur d'un joueur
@@ -35,10 +36,19 @@ const getPlayerColor = (playerName) => {
 // Calcul des données des joueurs avec la moyenne filtrée
 const playersData = computed(() =>
     props.players.map((player) => {
+        // Obtenir la liste des scores du joueur
+        let scores = props.gameData.data?.[player]?.played || [];
+        console.log(props.isFinishing);
+
+        // Si isFinishing est vrai et que le dernier score n'est pas négatif, l'exclure
+        if (props.isFinishing && scores.length > 0 && scores[scores.length - 1] >= 0) {
+            scores = scores.slice(0, -1); // Exclure le dernier score
+            console.log(player," est découpé")
+        }
+
         // Filtrer les scores >= 0 et les nombres entiers
-        const scores = (props.gameData.data?.[player]?.played || []).filter(
-            (score) => score >= 0 && Number.isInteger(score)
-        );
+        scores = scores.filter((score) => score >= 0 && Number.isInteger(score));
+        console.log(scores)
         // Calculer la moyenne uniquement avec les scores valides
         const average =
             scores.length > 0

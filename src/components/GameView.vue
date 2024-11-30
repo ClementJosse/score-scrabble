@@ -50,7 +50,7 @@
       <!-- Graphique des scores -->
       <ScoreGraph :gameData="gameData" :players="gameData.players" :playerColors="playerColors" />
 
-      <AverageScore :gameData="gameData" :players="gameData.players" :playerColors="playerColors" />
+      <AverageScore :gameData="gameData" :players="gameData.players" :playerColors="playerColors" :isFinishing="isFinishing" />
     </div>
   </div>
 </template>
