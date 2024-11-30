@@ -2,6 +2,17 @@
     <h4 class="table-title">Scores par tour</h4>
     <div class="score-container">
         <div class="tables-wrapper">
+
+            <div class="background-columns">
+                <div class="background-light-column"></div>
+                <div class="background-dark-column"></div>
+                <div class="background-light-column"></div>
+                <div class="background-dark-column"></div>
+                <div class="background-light-column"></div>
+                <div class="background-dark-column"></div>
+                <div class="background-light-column"></div>
+                <div class="background-dark-column"></div>
+            </div>
             <!-- Tableau des joueurs -->
             <table class="player-table">
                 <thead>
@@ -34,7 +45,7 @@
                     <tbody>
                         <tr v-for="player in players" :key="player">
                             <td v-for="index in maxTurns" :key="'score-' + player + '-' + index"
-                                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8', width: '20px' }">
+                                :style="{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#F8F8F8', width: 'clamp(0px, 35.3125px, 7.0625vw)' }">
                                 <span
                                     v-if="getPlayedForPlayer(player)[index - 1] !== undefined && getPlayedForPlayer(player)[index - 1] !== '-'"
                                     :style="{ color: getScoreColor(getPlayedForPlayer(player)[index - 1]) }">
@@ -51,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted} from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import { defineProps } from 'vue';
 
 const props = defineProps({
@@ -93,24 +104,24 @@ const isColumnFilled = (columnIndex) => {
 };
 
 const scrollToRight = () => {
-  if (scoreContainer.value) {
-    scoreContainer.value.scrollLeft = scoreContainer.value.scrollWidth;
-  }
+    if (scoreContainer.value) {
+        scoreContainer.value.scrollLeft = scoreContainer.value.scrollWidth;
+    }
 };
 
 onMounted(async () => {
-  try {
-    nextTick(() => {
-      scrollToRight();
-    });
-  } catch (e) {
-    console.error('Erreur lors du chargement du fichier JSON :', e);
-  }
+    try {
+        nextTick(() => {
+            scrollToRight();
+        });
+    } catch (e) {
+        console.error('Erreur lors du chargement du fichier JSON :', e);
+    }
 });
 </script>
 
 <style scoped>
-.table-title{
+.table-title {
     font-size: clamp(0px, 15px, 3vw);
     font-weight: 400;
     text-align: center;
@@ -135,6 +146,7 @@ onMounted(async () => {
 }
 
 .tables-wrapper {
+    position: relative; /* Position relative pour que les éléments absolus soient alignés à l'intérieur */
     display: flex;
     align-items: flex-start;
 }
@@ -145,6 +157,7 @@ onMounted(async () => {
     border: 0px;
     margin-right: clamp(0px, 5px, 1vw);
     overflow: hidden;
+    background-color: #ffffff;
 }
 
 .player-table th,
@@ -156,7 +169,7 @@ onMounted(async () => {
     border: 0px;
 }
 
-.player-row{
+.player-row {
     display: flex;
     height: clamp(0px, 45px, 9vw);
     align-items: center;
@@ -169,7 +182,7 @@ onMounted(async () => {
     overflow: hidden;
     max-width: clamp(0px, 100px, 20vw);
     min-width: clamp(0px, 100px, 20vw);
-    text-align:right;
+    text-align: right;
 }
 
 .turn-rectangle {
@@ -239,5 +252,29 @@ th {
 
 td {
     font-weight: 600;
+}
+
+.background-columns {
+    position: absolute;
+    top: 0;
+    right: 0; /* Commencer depuis la droite */
+    height: 100%;
+    display: flex;
+    flex-direction: row-reverse; /* Commence par la droite pour que les colonnes soient empilées dans l'ordre inverse */
+    z-index: -1; /* Assurez-vous que c'est à l'arrière-plan */
+}
+
+.background-light-column,
+.background-dark-column {
+    width: clamp(0px, 35.3125px, 7.0625vw);
+    height: 100%;
+}
+
+.background-light-column {
+    background-color: rgb(253, 253, 253);
+}
+
+.background-dark-column {
+    background-color: rgb(248, 248, 248);
 }
 </style>
