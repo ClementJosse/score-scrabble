@@ -60,7 +60,7 @@ const playersData = computed(() =>
     font-weight: 400;
     text-align: center;
     color: #5F5F5F;
-    padding-top: clamp(0px, 15px, 3vw);
+    padding-top: clamp(0px, 25px, 5vw)
 }
 
 

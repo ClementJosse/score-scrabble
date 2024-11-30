@@ -65,9 +65,10 @@ const sortedPlayersData = computed(() => {
 // Fonction pour calculer la hauteur proportionnelle
 const calculateHeight = (score) => {
     const maxScore = sortedPlayersData.value[0]?.final || 1; // Score maximum (évite division par 0)
+    const minScore = sortedPlayersData.value[sortedPlayersData.value.length - 1]?.final || 0; // Score minimum
     const minHeight = 60; // Hauteur minimale (en pixels)
     const maxHeight = 100; // Hauteur maximale (en pixels)
-    return Math.max(minHeight, (score / maxScore) * maxHeight); // Proportionne la hauteur
+    return (((score-minScore)/(maxScore-minScore))*(maxHeight-minHeight))+minHeight;
 };
 </script>
 

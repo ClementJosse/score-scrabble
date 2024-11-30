@@ -505,7 +505,7 @@ h4 {
 .previous-turn {
   display: flex;
   justify-content: right;
-  margin-top: clamp(0px, 12.5px, 2.5vw);
+  margin-top: clamp(0px, 12px, 2.4vw);
   color: #027A56;
   font-size: clamp(0px, 16.5px, 3.3vw);
   align-items: center;

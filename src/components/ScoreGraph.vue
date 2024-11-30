@@ -179,6 +179,7 @@ watch(
     font-weight: 400;
     text-align: center;
     color: #5F5F5F;
+    margin-top: clamp(0px, 10px, 2vw);
 }
 
 .chart-container {
