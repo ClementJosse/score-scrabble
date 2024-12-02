@@ -3,36 +3,39 @@
     <div v-if="currentView === 'main-menu'" class="main-menu">
       <TitleLogo />
       <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
-      <div class="json-list">
+      <div class="json-list mt-5">
+        <h2>Fichiers JSON créés :</h2>
         <div v-if="ongoingFiles.length > 0">
           <h3>Parties en cours :</h3>
-          <ul>
-            <li v-for="file in ongoingFiles" :key="file" class="flex items-center justify-between">
-              {{ file }}
-              <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
-                Ouvrir
-              </button>
-              <button @click="deleteJsonFile(file)"
-                class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-                Supprimer
-              </button>
-            </li>
-          </ul>
+          <div v-for="file in ongoingFiles" :key="file">
+            <GameItem
+              :currentTurn="fileData[file].currentTurn"
+              :players="fileData[file].players"
+              :data="fileData[file].data"
+            />
+            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
+              Ouvrir
+            </button>
+            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+              Supprimer
+            </button>
+          </div>
         </div>
         <div v-if="endedFiles.length > 0">
           <h3>Parties terminées :</h3>
-          <ul>
-            <li v-for="file in endedFiles" :key="file" class="flex items-center justify-between">
-              {{ file }}
-              <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
-                Ouvrir
-              </button>
-              <button @click="deleteJsonFile(file)"
-                class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-                Supprimer
-              </button>
-            </li>
-          </ul>
+          <div v-for="file in endedFiles" :key="file">
+            <GameItem
+              :currentTurn="fileData[file].currentTurn"
+              :players="fileData[file].players"
+              :data="fileData[file].data"
+            />
+            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
+              Ouvrir
+            </button>
+            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+              Supprimer
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -54,6 +57,7 @@
 import TitleLogo from './components/TitleLogo.vue';
 import ListReorder from './components/ListReorder.vue';
 import GameView from './components/GameView.vue';
+import GameItem from './components/GameItem.vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export default {
@@ -61,14 +65,15 @@ export default {
   components: {
     TitleLogo,
     ListReorder,
-    GameView
+    GameView,
+    GameItem
   },
   data() {
     return {
       currentView: 'main-menu', // Vue actuelle (main-menu, player-menu, game-view)
-      jsonFiles: [], // Liste des fichiers JSON
       ongoingFiles: [], // Liste des fichiers JSON avec status 'ongoing'
       endedFiles: [], // Liste des fichiers JSON avec status 'ended'
+      fileData: {}, // Données des fichiers JSON
       selectedFileName: '' // Nom du fichier JSON sélectionné
     };
   },
@@ -80,7 +85,6 @@ export default {
           directory: Directory.Documents
         });
 
-        // Extraire le nom des fichiers et trier par ordre décroissant
         const jsonFiles = result.files
           .map(file => (typeof file === 'string' ? file : file.name))
           .filter(fileName => fileName.endsWith('.json'))
@@ -89,8 +93,8 @@ export default {
         // Réinitialiser les listes
         this.ongoingFiles = [];
         this.endedFiles = [];
+        this.fileData = {};
 
-        // Lire le contenu de chaque fichier JSON pour déterminer le statut
         for (const fileName of jsonFiles) {
           const fileContent = await Filesystem.readFile({
             path: fileName,
@@ -98,6 +102,11 @@ export default {
           });
 
           const fileData = JSON.parse(fileContent.data);
+          this.fileData[fileName] = {
+            currentTurn: fileData["current-turn"],
+            players: fileData.players,
+            data: fileData.data
+          };
 
           if (fileData.status === 'ongoing') {
             this.ongoingFiles.push(fileName);
@@ -140,16 +149,13 @@ export default {
   mounted() {
     this.loadJsonFiles(); // Charge la liste des fichiers au montage du composant
 
-    // Écoute l'événement personnalisé 'jsonUpdated' pour actualiser la liste
     window.addEventListener('jsonUpdated', this.loadJsonFiles);
   },
   beforeUnmount() {
-    // Nettoyer l'écouteur d'événements lorsque le composant est démonté
     window.removeEventListener('jsonUpdated', this.loadJsonFiles);
   }
 };
 </script>
-
 
 
 <style>
