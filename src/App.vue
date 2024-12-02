@@ -4,39 +4,32 @@
       <TitleLogo />
       <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
       <div class="json-list mt-5">
-        <h2>Fichiers JSON créés :</h2>
         <div v-if="ongoingFiles.length > 0">
           <h3>Parties en cours :</h3>
           <div v-for="file in ongoingFiles" :key="file">
             <GameItem
+              :file="file"
               :ongoing="true"
               :currentTurn="fileData[file].currentTurn"
               :players="fileData[file].players"
               :data="fileData[file].data"
+              @view="viewGame"
+              @delete="deleteJsonFile"
             />
-            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
-              Ouvrir
-            </button>
-            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-              Supprimer
-            </button>
           </div>
         </div>
         <div v-if="endedFiles.length > 0">
           <h3>Parties terminées :</h3>
           <div v-for="file in endedFiles" :key="file">
             <GameItem
+              :file="file"
               :ongoing="false"
               :currentTurn="fileData[file].currentTurn"
               :players="fileData[file].players"
               :data="fileData[file].data"
+              @view="viewGame"
+              @delete="deleteJsonFile"
             />
-            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
-              Ouvrir
-            </button>
-            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-              Supprimer
-            </button>
           </div>
         </div>
       </div>
