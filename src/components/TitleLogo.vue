@@ -19,7 +19,7 @@ export default {
   max-height: fit-content;
   width: 100%;
   /* S'assure que la div prend tout l'espace disponible */
-  margin-bottom: clamp(0px, 150px, 30vw);
+  margin-bottom: clamp(0px, 200px, 40vw);
 }
 
 .TitleLogo img {

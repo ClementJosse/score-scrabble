@@ -3,9 +3,9 @@
     <div v-if="currentView === 'main-menu'" class="main-menu">
       <TitleLogo />
       <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
-      <div class="json-list mt-5">
+      <div class="json-list">
         <div v-if="ongoingFiles.length > 0">
-          <h3>Parties en cours :</h3>
+          <h5 class="json-list-title">Parties en cours :</h5>
           <div v-for="file in ongoingFiles" :key="file">
             <GameItem
               :file="file"
@@ -19,7 +19,7 @@
           </div>
         </div>
         <div v-if="endedFiles.length > 0">
-          <h3>Parties terminées :</h3>
+          <h5 class="json-list-title">Parties précédentes :</h5>
           <div v-for="file in endedFiles" :key="file">
             <GameItem
               :file="file"
@@ -189,8 +189,8 @@ body {
 }
 
 .json-list {
-  margin-top: 20px;
   text-align: left;
+  margin-bottom: clamp(0px, 200px, 40vw);
 }
 
 .new-game {
@@ -239,6 +239,12 @@ body {
 .back-menu:active {
   background-color: #DADADA;
   /* Couleur lorsqu'on appuie */
+}
+
+.json-list-title{
+  font-size: clamp(0px, 25px, 5vw);
+  margin-top: clamp(0px, 70px, 14vw);
+  color: #004B35;
 }
 
 #app {
