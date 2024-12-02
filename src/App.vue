@@ -9,6 +9,7 @@
           <h3>Parties en cours :</h3>
           <div v-for="file in ongoingFiles" :key="file">
             <GameItem
+              :ongoing="true"
               :currentTurn="fileData[file].currentTurn"
               :players="fileData[file].players"
               :data="fileData[file].data"
@@ -25,6 +26,7 @@
           <h3>Parties terminées :</h3>
           <div v-for="file in endedFiles" :key="file">
             <GameItem
+              :ongoing="false"
               :currentTurn="fileData[file].currentTurn"
               :players="fileData[file].players"
               :data="fileData[file].data"
