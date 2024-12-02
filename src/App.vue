@@ -3,19 +3,37 @@
     <div v-if="currentView === 'main-menu'" class="main-menu">
       <TitleLogo />
       <button @click="goToPlayerMenu" class="new-game">Nouvelle Partie</button>
-      <div class="json-list mt-5">
-        <h2>Fichiers JSON créés :</h2>
-        <ul>
-          <li v-for="file in jsonFiles" :key="file" class="flex items-center justify-between">
-            {{ file }}
-            <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
-              Ouvrir
-            </button>
-            <button @click="deleteJsonFile(file)" class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
-              Supprimer
-            </button>
-          </li>
-        </ul>
+      <div class="json-list">
+        <div v-if="ongoingFiles.length > 0">
+          <h3>Parties en cours :</h3>
+          <ul>
+            <li v-for="file in ongoingFiles" :key="file" class="flex items-center justify-between">
+              {{ file }}
+              <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
+                Ouvrir
+              </button>
+              <button @click="deleteJsonFile(file)"
+                class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+                Supprimer
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div v-if="endedFiles.length > 0">
+          <h3>Parties terminées :</h3>
+          <ul>
+            <li v-for="file in endedFiles" :key="file" class="flex items-center justify-between">
+              {{ file }}
+              <button @click="viewGame(file)" class="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">
+                Ouvrir
+              </button>
+              <button @click="deleteJsonFile(file)"
+                class="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+                Supprimer
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -49,6 +67,8 @@ export default {
     return {
       currentView: 'main-menu', // Vue actuelle (main-menu, player-menu, game-view)
       jsonFiles: [], // Liste des fichiers JSON
+      ongoingFiles: [], // Liste des fichiers JSON avec status 'ongoing'
+      endedFiles: [], // Liste des fichiers JSON avec status 'ended'
       selectedFileName: '' // Nom du fichier JSON sélectionné
     };
   },
@@ -61,10 +81,30 @@ export default {
         });
 
         // Extraire le nom des fichiers et trier par ordre décroissant
-        this.jsonFiles = result.files
-          .map(file => typeof file === 'string' ? file : file.name)
+        const jsonFiles = result.files
+          .map(file => (typeof file === 'string' ? file : file.name))
           .filter(fileName => fileName.endsWith('.json'))
           .sort((a, b) => b.localeCompare(a));
+
+        // Réinitialiser les listes
+        this.ongoingFiles = [];
+        this.endedFiles = [];
+
+        // Lire le contenu de chaque fichier JSON pour déterminer le statut
+        for (const fileName of jsonFiles) {
+          const fileContent = await Filesystem.readFile({
+            path: fileName,
+            directory: Directory.Documents
+          });
+
+          const fileData = JSON.parse(fileContent.data);
+
+          if (fileData.status === 'ongoing') {
+            this.ongoingFiles.push(fileName);
+          } else if (fileData.status === 'ended') {
+            this.endedFiles.push(fileName);
+          }
+        }
       } catch (e) {
         console.error('Erreur lors du chargement des fichiers JSON :', e);
       }
@@ -111,12 +151,14 @@ export default {
 </script>
 
 
+
 <style>
 html,
 body {
   height: auto;
-  min-height: 100% ;
-  overflow: auto !important; /* Forcer le défilement vertical */
+  min-height: 100%;
+  overflow: auto !important;
+  /* Forcer le défilement vertical */
 }
 
 .main-container {
