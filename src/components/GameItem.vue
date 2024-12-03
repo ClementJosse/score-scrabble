@@ -19,8 +19,8 @@
     </div>
     <div v-else class="winner">
       Gagnant:
-      {{ props.currentTurn }}
-      ({{ props.data[props.currentTurn].score[props.data[props.currentTurn].score.length - 1] || 0 }}pts)
+      {{ winnerName }}
+      ({{ props.data[winnerName].score[props.data[winnerName].score.length - 1] || 0 }}pts)
     </div>
   </div>
 </template>
@@ -31,7 +31,7 @@ import { defineProps, defineEmits } from 'vue';
 
 // Définir les props que le composant accepte
 const props = defineProps({
-  ongoing: Boolean,
+  ongoing: Boolean, 
   currentTurn: String,
   players: Array,
   data: Object,
@@ -62,6 +62,27 @@ const formatFileName = (fileName) => {
 const formattedPlayers = computed(() => {
   return props.players.join(' - ');
 });
+
+const winnerName = computed(() => {
+  if (!props.data || !props.players.length) return null;
+
+  // Trouver le joueur avec le score le plus élevé
+  let highestScore = -Infinity;
+  let winnerIndex = 0;
+
+  props.players.forEach((player, index) => {
+    const scores = props.data[player]?.score || [];
+    const totalScore = scores.length ? scores[scores.length - 1] : 0;
+
+    if (totalScore > highestScore) {
+      highestScore = totalScore;
+      winnerIndex = index;
+    }
+  });
+
+  return props.players[winnerIndex];
+});
+
 
 // Méthode pour gérer le clic sur le bouton
 const handleButtonClick = () => {
