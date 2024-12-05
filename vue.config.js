@@ -1,5 +1,5 @@
 const { defineConfig } = require('@vue/cli-service')
-module.exports = {
-  publicPath: '/scorescrabble/'
-}
-
+module.exports = defineConfig({
+  transpileDependencies: true,
+  publicPath: './' // Utiliser un chemin relatif
+});

@@ -15,4 +15,6 @@ import '@ionic/vue/css/display.css';
 
 const app = createApp(App);
 app.use(IonicVue);
+console.log("Lancement de l'application");
 app.mount('#app');
+console.log("Application montée !");
