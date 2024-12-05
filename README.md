@@ -10,4 +10,4 @@
 
 ## Version Web
 
-L'application est optimisée pour une utilisation mobile, mais une version en ligne est également disponible : **[cjosse.com/score-scrabble](https://cjosse.com/score-scrabble)**.
+L'application est optimisée pour une utilisation mobile, mais une version en ligne est également disponible : **[cjosse.com/scorescrabble](https://cjosse.com/scorescrabble)**.
