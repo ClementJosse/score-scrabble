@@ -1,24 +1,13 @@
-# score-scrabble
+# Application Mobile - ScoreScrabble
 
-## Project setup
-```
-npm install
-```
+![ScoreScrabble](./src/assets/score-scrabble.gif)
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+**ScoreScrabble** est une application qui facilite le suivi des scores de vos parties de Scrabble tout en fournissant des statistiques pertinentes sur chaque partie.
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Télécharger l'APK Android
 
-### Lints and fixes files
-```
-npm run lint
-```
+#### La version mobile Android de l'application est disponible **[ici](./apk/DicoScrabble.apk)**.
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Version Web
+
+L'application est optimisée pour une utilisation mobile, mais une version en ligne est également disponible : **[cjosse.com/score-scrabble](https://cjosse.com/score-scrabble)**.
