@@ -59,7 +59,7 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import ScoreTable from '@/components/ScoreTable.vue';
 import ScoreGraph from "@/components/ScoreGraph.vue";
 import AverageScore from './AverageScore.vue';
@@ -98,7 +98,7 @@ const endTheGame = async () => {
       path: `${props.fileName}.json`,
       data: JSON.stringify(gameData.value, null, 2),
       directory: Directory.Documents,
-      encoding: 'utf8',
+      encoding: Encoding.UTF8
     });
     console.log('Statut de la partie mis à jour : "ended"');
   } catch (e) {
@@ -214,7 +214,7 @@ const previousTurn = async () => {
         path: `${props.fileName}.json`,
         data: JSON.stringify(gameData.value, null, 2),
         directory: Directory.Documents,
-        encoding: 'utf8',
+        encoding: Encoding.UTF8
       });
       console.log('Tour précédent annulé avec succès.');
     } catch (e) {
@@ -270,7 +270,7 @@ const addMove = async () => {
       path: `${props.fileName}.json`,
       data: JSON.stringify(gameData.value, null, 2),
       directory: Directory.Documents,
-      encoding: 'utf8'
+      encoding: Encoding.UTF8
     });
     newMove.value = '';
     console.log('Mise à jour du fichier JSON réussie');
@@ -347,7 +347,8 @@ onMounted(async () => {
   try {
     const result = await Filesystem.readFile({
       path: `${props.fileName}.json`,
-      directory: Directory.Documents
+      directory: Directory.Documents,
+      encoding: Encoding.UTF8
     });
     gameData.value = JSON.parse(result.data);
 

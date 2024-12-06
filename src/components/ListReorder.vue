@@ -104,7 +104,8 @@ const createJsonFile = async () => {
     // Lire et afficher le contenu du fichier JSON dans la console du navigateur
     const result = await Filesystem.readFile({
       path: fileName,
-      directory: Directory.Documents
+      directory: Directory.Documents,
+      encoding: Encoding.UTF8
     });
     console.log('Contenu du fichier JSON :', JSON.parse(result.data));
 

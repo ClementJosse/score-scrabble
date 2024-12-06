@@ -53,7 +53,7 @@ import TitleLogo from './components/TitleLogo.vue';
 import ListReorder from './components/ListReorder.vue';
 import GameView from './components/GameView.vue';
 import GameItem from './components/GameItem.vue';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 export default {
   name: 'App',
@@ -77,7 +77,8 @@ export default {
       try {
         const result = await Filesystem.readdir({
           path: '',
-          directory: Directory.Documents
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
         });
 
         const jsonFiles = result.files
@@ -93,7 +94,8 @@ export default {
         for (const fileName of jsonFiles) {
           const fileContent = await Filesystem.readFile({
             path: fileName,
-            directory: Directory.Documents
+            directory: Directory.Documents,
+            encoding: Encoding.UTF8
           });
 
           const fileData = JSON.parse(fileContent.data);
@@ -117,7 +119,8 @@ export default {
       try {
         await Filesystem.deleteFile({
           path: fileName,
-          directory: Directory.Documents
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
         });
         console.log('Fichier JSON supprimé :', fileName);
         this.loadJsonFiles(); // Recharge la liste des fichiers après la suppression
