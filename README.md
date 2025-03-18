@@ -12,4 +12,4 @@ L'apk a été fait pour fonctionner sur la version *Android 15 (Vanilla Ice Crea
 
 ## Version Web
 
-L'application est optimisée pour une utilisation mobile, mais une version en ligne est également disponible : **[cjosse.com/scorescrabble](https://cjosse.com/scorescrabble)**.
+L'application est optimisée pour une utilisation mobile, mais une version en ligne est également disponible : **[scorescrabble.cjosse.com](https://scorescrabble.cjosse.com)**.
